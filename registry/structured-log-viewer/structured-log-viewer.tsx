@@ -10,6 +10,7 @@ import {
   Terminal,
 } from "lucide-react"
 
+import { JsonViewer, type JsonValue } from "@/components/json-viewer"
 import { cn } from "@/lib/utils"
 
 type LogEvent = Record<string, unknown>
@@ -200,49 +201,49 @@ export function StructuredLogViewer<TEvent extends LogEvent = LogEvent>({
     <section
       data-slot="structured-log-viewer"
       className={cn(
-        "overflow-hidden rounded-lg border border-border/70 bg-card text-card-foreground shadow-sm",
+        "overflow-hidden rounded-md border border-border/70 bg-card font-mono text-[10px] leading-4 text-card-foreground shadow-sm",
         className
       )}
       {...props}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 bg-muted/25 px-3 py-2">
-        <Terminal className="size-4 shrink-0 text-muted-foreground" />
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-sm font-medium">{title}</h2>
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-border/60 bg-muted/25 px-2 py-1">
+        <Terminal className="size-3 shrink-0 text-muted-foreground" />
+        <div className="min-w-0 flex-1 overflow-x-auto">
+          <h2 className="w-max whitespace-nowrap font-medium">{title}</h2>
         </div>
-        <div className="font-mono text-[11px] text-muted-foreground">
+        <div className="text-muted-foreground">
           {filteredEvents.length}
           {query ? ` / ${events.length}` : ""} events
         </div>
         <button
           type="button"
           onClick={() => copy(stringifyEvent(filteredEvents))}
-          className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex size-5 items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring"
           aria-label={copied ? "Copied logs" : "Copy logs"}
         >
           {copied ? (
-            <Check className="size-3.5 text-emerald-500" />
+            <Check className="size-3 text-emerald-500" />
           ) : (
-            <Copy className="size-3.5" />
+            <Copy className="size-3" />
           )}
         </button>
         <button
           type="button"
           onClick={() => exportEvents(filteredEvents)}
-          className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex size-5 items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring"
           aria-label="Download logs"
         >
-          <Download className="size-3.5" />
+          <Download className="size-3" />
         </button>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-border/60 px-3 py-2">
-        <Search className="size-3.5 shrink-0 text-muted-foreground" />
+      <div className="flex items-center gap-1.5 border-b border-border/60 px-2 py-1">
+        <Search className="size-3 shrink-0 text-muted-foreground" />
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search logs..."
-          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
         />
       </div>
 
@@ -331,30 +332,30 @@ function StructuredLogRow<TEvent extends LogEvent>({
         type="button"
         aria-expanded={isExpanded}
         onClick={() => setIsExpanded((current) => !current)}
-        className="flex w-full items-center gap-2 px-2 py-1.5 text-left text-xs outline-none transition-colors hover:bg-muted/30 focus-visible:bg-muted/40"
+        className="flex min-w-max items-center gap-1.5 px-1.5 py-0.5 text-left outline-none transition-colors hover:bg-muted/30 focus-visible:bg-muted/40"
       >
         <ChevronRight
-          className={cn("size-3.5 shrink-0 text-muted-foreground transition-transform", {
+          className={cn("size-3 shrink-0 text-muted-foreground transition-transform", {
             "rotate-90": isExpanded,
           })}
         />
-        <span className="hidden w-36 shrink-0 truncate font-mono text-muted-foreground md:block">
+        <span className="hidden shrink-0 whitespace-nowrap text-muted-foreground md:block">
           {timestamp}
         </span>
         <span
           className={cn(
-            "w-16 shrink-0 truncate rounded border px-1.5 py-0.5 text-center font-mono text-[10px] font-semibold uppercase",
+            "shrink-0 whitespace-nowrap rounded-sm border px-1 py-0 text-center font-semibold uppercase",
             toneClassNames[tone]
           )}
         >
           {level ?? formatFieldValue(statusValue) ?? "event"}
         </span>
-        <span className="w-40 shrink-0 truncate font-mono font-semibold">
+        <span className="shrink-0 whitespace-nowrap font-semibold">
           {title ?? "log.event"}
         </span>
-        <span className="flex min-w-0 items-center gap-2 overflow-hidden">
+        <span className="flex shrink-0 items-center gap-1.5">
           {message ? (
-            <span className="min-w-0 truncate text-muted-foreground">
+            <span className="shrink-0 whitespace-nowrap text-muted-foreground">
               {message}
             </span>
           ) : null}
@@ -362,7 +363,7 @@ function StructuredLogRow<TEvent extends LogEvent>({
             <span
               key={field.path}
               className={cn(
-                "max-w-44 min-w-0 shrink truncate rounded border border-border/60 bg-muted/20 px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground",
+                "shrink-0 whitespace-nowrap rounded-sm border border-border/60 bg-muted/20 px-1 py-0 text-muted-foreground",
                 field.className
               )}
               title={`${field.label}=${String(field.formatted)}`}
@@ -374,10 +375,13 @@ function StructuredLogRow<TEvent extends LogEvent>({
       </button>
 
       {isExpanded ? (
-        <div className="border-t border-border/40 bg-muted/10 p-2">
-          <pre className="max-h-96 overflow-auto rounded-md border border-border/60 bg-background p-3 font-mono text-xs leading-relaxed text-muted-foreground">
-            {stringifyEvent(event)}
-          </pre>
+        <div className="border-t border-border/40 bg-muted/10 p-1.5">
+          <JsonViewer
+            data={event as JsonValue}
+            rootName="event"
+            defaultExpanded={2}
+            className="rounded-sm shadow-none"
+          />
         </div>
       ) : null}
     </article>

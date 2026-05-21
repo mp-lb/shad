@@ -43,6 +43,9 @@
       "title": "Structured Log Viewer",
       "description": "Expandable structured event log viewer with configurable dot-path headline fields and raw JSON detail rows.",
       "dependencies": ["lucide-react"],
+      "registryDependencies": [
+        "https://shad.mp-lb.dev/r/json-viewer.json"
+      ],
       "categories": ["dev-tools", "dashboard", "observability"],
       "files": [
         {

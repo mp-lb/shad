@@ -1,59 +1,47 @@
-import Link from "next/link"
 import type { ReactNode } from "react"
-import { Braces, FileText, ListTree, Terminal } from "lucide-react"
+import { Braces, FileText, Github, Terminal } from "lucide-react"
+import { DocsLayout as FumadocsDocsLayout } from "fumadocs-ui/layouts/docs"
 
-const navItems = [
-  { href: "/docs/components/mdkit-editor", label: "MDKit Editor", icon: FileText },
-  { href: "/docs/components/json-viewer", label: "JSON Viewer", icon: Braces },
-  {
-    href: "/docs/components/structured-log-viewer",
-    label: "Structured Log Viewer",
-    icon: Terminal,
-  },
-]
+import { source } from "@/lib/source"
 
 export default function DocsLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <Link href="/docs" className="flex items-center gap-2 font-semibold">
-            <ListTree className="size-4" />
-            @mp-lb/shad
-          </Link>
-          <nav className="ml-auto hidden items-center gap-1 sm:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </header>
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:px-8">
-        <aside className="hidden lg:block">
-          <nav className="sticky top-20 flex flex-col gap-1">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <Icon className="size-4" />
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
-        </aside>
-        <main className="min-w-0">{children}</main>
-      </div>
-    </div>
+    <FumadocsDocsLayout
+      tree={source.pageTree}
+      nav={{
+        title: "@mp-lb/shad",
+        url: "/docs",
+      }}
+      links={[
+        {
+          type: "main",
+          text: "MDKit Editor",
+          url: "/docs/components/mdkit-editor",
+          icon: <FileText className="size-4" />,
+        },
+        {
+          type: "main",
+          text: "JSON Viewer",
+          url: "/docs/components/json-viewer",
+          icon: <Braces className="size-4" />,
+        },
+        {
+          type: "main",
+          text: "Structured Logs",
+          url: "/docs/components/structured-log-viewer",
+          icon: <Terminal className="size-4" />,
+        },
+        {
+          type: "icon",
+          text: "GitHub",
+          label: "GitHub",
+          url: "https://github.com/mp-lb/shad",
+          icon: <Github className="size-4" />,
+          external: true,
+        },
+      ]}
+    >
+      {children}
+    </FumadocsDocsLayout>
   )
 }

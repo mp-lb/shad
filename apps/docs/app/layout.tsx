@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { RootProvider } from "fumadocs-ui/provider/next"
 
 import "./globals.css"
 
@@ -18,7 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <RootProvider>{children}</RootProvider>
+      </body>
     </html>
   )
 }

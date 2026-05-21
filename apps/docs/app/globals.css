@@ -39,26 +39,48 @@
 }
 
 :root {
-  --background: var(--color-fd-background);
-  --foreground: var(--color-fd-foreground);
-  --card: var(--color-fd-card);
-  --card-foreground: var(--color-fd-card-foreground);
-  --popover: var(--color-fd-popover);
-  --popover-foreground: var(--color-fd-popover-foreground);
-  --primary: var(--color-fd-primary);
-  --primary-foreground: var(--color-fd-primary-foreground);
-  --secondary: var(--color-fd-secondary);
-  --secondary-foreground: var(--color-fd-secondary-foreground);
-  --muted: var(--color-fd-muted);
-  --muted-foreground: var(--color-fd-muted-foreground);
-  --accent: var(--color-fd-accent);
-  --accent-foreground: var(--color-fd-accent-foreground);
+  color-scheme: light;
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 6%, 25%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 3.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 15.1%);
+  --primary: hsl(226, 55%, 45%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 6%, 97%);
+  --secondary-foreground: hsl(0, 0%, 9%);
+  --muted: hsl(0, 0%, 96.1%);
+  --muted-foreground: hsl(240, 6%, 50%);
+  --accent: hsl(0, 0%, 94.1%);
+  --accent-foreground: hsl(240, 6%, 25%);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: var(--color-fd-border);
-  --input: var(--color-fd-border);
-  --ring: var(--color-fd-ring);
+  --border: hsl(0, 0%, 89.8%);
+  --input: hsl(0, 0%, 89.8%);
+  --ring: hsl(0, 0%, 63.9%);
   --radius: 0.5rem;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: hsl(240, 7%, 11%);
+  --foreground: hsl(60, 100%, 98%);
+  --card: hsl(240, 7%, 11%);
+  --card-foreground: hsl(60, 100%, 98%);
+  --popover: hsl(240, 7%, 11%);
+  --popover-foreground: hsl(60, 100%, 98%);
+  --primary: hsl(234, 100%, 83%);
+  --primary-foreground: hsl(240, 7%, 11%);
+  --secondary: hsl(240, 4%, 9%);
+  --secondary-foreground: hsl(60, 100%, 98%);
+  --muted: hsl(0, 0%, 13%);
+  --muted-foreground: hsl(240, 4%, 65%);
+  --accent: hsl(0, 0%, 15%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --border: hsl(240, 4%, 19%);
+  --input: hsl(240, 4%, 19%);
+  --ring: hsl(234, 100%, 83%);
 }
 
 * {

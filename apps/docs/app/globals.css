@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "@mp-lb/mdkit/styles.css";
 
+@source "../registry";
+@source "../components";
+@source "../content";
+@source "../app";
 @source "../../../registry";
 
 @custom-variant dark (&:is(.dark *));

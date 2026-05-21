@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "mp-lb-shad",
+  "homepage": "https://shad.mp-lb.dev",
+  "items": [
+    {
+      "name": "structured-log-viewer",
+      "type": "registry:component",
+      "title": "Structured Log Viewer",
+      "description": "Expandable structured event log viewer with configurable dot-path headline fields and raw JSON detail rows.",
+      "dependencies": ["lucide-react"],
+      "categories": ["dev-tools", "dashboard", "observability"],
+      "files": [
+        {
+          "path": "registry/structured-log-viewer/structured-log-viewer.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@mp-lb/shad",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.10.0",
+  "scripts": {
+    "dev": "pnpm registry:build && vitepress dev apps/docs",
+    "build": "pnpm registry:build && vitepress build apps/docs",
+    "preview": "vitepress preview apps/docs",
+    "registry:build": "shadcn build registry.json -o apps/docs/public/r"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "lucide-react": "^0.554.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "vite": "^7.2.4",
+    "vitepress": "^1.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "shadcn": "^4.6.0",
+    "typescript": "^6.0.3"
+  }
+}

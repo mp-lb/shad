@@ -1,0 +1,7 @@
+{
+  name: 'Shad',
+  emoji: '🎨',
+  description: 'Component registry / shadcn docs site',
+  homepageUrl: 'https://shad.mp-lb.dev/',
+  internalDeps: ['mdkit']
+}

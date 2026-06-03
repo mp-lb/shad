@@ -38,14 +38,32 @@
       ]
     },
     {
+      "name": "array-editor",
+      "type": "registry:component",
+      "title": "Array Editor",
+      "description": "Drag-and-drop list editor with optional label creation, renaming, deletion, and edit callbacks.",
+      "dependencies": [
+        "@dnd-kit/core",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities",
+        "lucide-react"
+      ],
+      "registryDependencies": ["button", "dialog", "input"],
+      "categories": ["forms", "dashboard", "editor"],
+      "files": [
+        {
+          "path": "registry/array-editor/array-editor.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "structured-log-viewer",
       "type": "registry:component",
       "title": "Structured Log Viewer",
       "description": "Expandable structured event log viewer with configurable dot-path headline fields and raw JSON detail rows.",
       "dependencies": ["lucide-react"],
-      "registryDependencies": [
-        "https://shad.mp-lb.dev/r/json-viewer.json"
-      ],
+      "registryDependencies": ["https://shad.mp-lb.dev/r/json-viewer.json"],
       "categories": ["dev-tools", "dashboard", "observability"],
       "files": [
         {

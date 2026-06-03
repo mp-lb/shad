@@ -1,4 +1,9 @@
 {
   "title": "Components",
-  "pages": ["mdkit-editor", "json-viewer", "structured-log-viewer"]
+  "pages": [
+    "mdkit-editor",
+    "array-editor",
+    "json-viewer",
+    "structured-log-viewer"
+  ]
 }

@@ -72,6 +72,21 @@
       ]
     },
     {
+      "name": "state",
+      "type": "registry:component",
+      "title": "State",
+      "description": "Reusable empty, loading, error, retry, and success states with a MAP Lab loader.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["button"],
+      "categories": ["feedback", "dashboard", "layout"],
+      "files": [
+        {
+          "path": "registry/state/state.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "structured-log-viewer",
       "type": "registry:component",
       "title": "Structured Log Viewer",

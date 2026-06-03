@@ -11,9 +11,9 @@ import {
   RetryErrorState,
   StateLayout,
   SuccessState,
-} from "../../../registry/state/state";
+} from "../../../registry/ui-states/ui-states";
 
-export function StateDemo() {
+export function UiStatesDemo() {
   const [retryCount, setRetryCount] = React.useState(0);
 
   return (

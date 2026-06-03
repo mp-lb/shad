@@ -4,7 +4,7 @@
     "mdkit-editor",
     "array-editor",
     "modal",
-    "state",
+    "ui-states",
     "json-viewer",
     "structured-log-viewer"
   ]

@@ -1,18 +1,18 @@
 import { DocsPage } from "fumadocs-ui/layouts/docs/page";
 
 import { PageHeader } from "@/components/page-header";
-import { StateDemo } from "@/components/state-demo";
+import { UiStatesDemo } from "@/components/ui-states-demo";
 
-export default function StatePage() {
+export default function UiStatesPage() {
   return (
     <DocsPage footer={{ enabled: false }} tableOfContent={{ enabled: false }}>
       <div className="flex flex-col gap-6">
         <PageHeader
-          title="State"
+          title="UI States"
           description="Reusable loading, empty, error, retry, and success states with a MAP Lab loader."
-          install="pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/state.json"
+          install="pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/ui-states.json"
         />
-        <StateDemo />
+        <UiStatesDemo />
       </div>
     </DocsPage>
   );

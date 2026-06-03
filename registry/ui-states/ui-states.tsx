@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { DotmLoading } from "./dotm-loading";
+
 type StateTone = "default" | "destructive" | "success";
 type StatePresentation = "centered" | "inline";
 type LoaderSize = "sm" | "md" | "lg";
@@ -28,16 +30,10 @@ const inlineToneClasses: Record<StateTone, string> = {
   success: "border-emerald-500/30 bg-emerald-500/10",
 };
 
-const loaderSizeClasses: Record<LoaderSize, string> = {
-  sm: "size-5 gap-0.5",
-  md: "size-7 gap-1",
-  lg: "size-10 gap-1.5",
-};
-
-const loaderDotClasses: Record<LoaderSize, string> = {
-  sm: "size-1",
-  md: "size-1.5",
-  lg: "size-2",
+const loaderSizes: Record<LoaderSize, number> = {
+  sm: 16,
+  md: 22,
+  lg: 32,
 };
 
 export function MapLabLoader({
@@ -50,27 +46,12 @@ export function MapLabLoader({
   size?: LoaderSize;
 }) {
   return (
-    <span
+    <DotmLoading
       aria-label={ariaLabel}
-      className={cn(
-        "grid grid-cols-3 place-items-center text-primary",
-        loaderSizeClasses[size],
-        className,
-      )}
-      role="status"
-    >
-      {Array.from({ length: 9 }).map((_, index) => (
-        <span
-          aria-hidden="true"
-          className={cn(
-            "rounded-full bg-current motion-safe:animate-pulse",
-            loaderDotClasses[size],
-          )}
-          key={index}
-          style={{ animationDelay: `${index * 85}ms` }}
-        />
-      ))}
-    </span>
+      className={cn("shrink-0 text-primary", className)}
+      dotSize={size === "lg" ? 3 : 2}
+      size={loaderSizes[size]}
+    />
   );
 }
 

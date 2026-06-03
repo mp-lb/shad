@@ -58,6 +58,20 @@
       ]
     },
     {
+      "name": "modal",
+      "type": "registry:component",
+      "title": "Modal",
+      "description": "Alert, standard, and fullscreen modal shells with fixed headers, fixed footers, and scrollable bodies.",
+      "registryDependencies": ["button", "dialog"],
+      "categories": ["layout", "dialogs", "dashboard"],
+      "files": [
+        {
+          "path": "registry/modal/modal.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "structured-log-viewer",
       "type": "registry:component",
       "title": "Structured Log Viewer",

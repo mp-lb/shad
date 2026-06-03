@@ -3,6 +3,7 @@
   "pages": [
     "mdkit-editor",
     "array-editor",
+    "modal",
     "json-viewer",
     "structured-log-viewer"
   ]

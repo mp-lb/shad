@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import {
+  ArrowUp,
   Bot,
-  CornerDownLeft,
   FileText,
   Hash,
   Loader2,
-  Paperclip,
-  Send,
+  Plus,
   Slash,
   Sparkles,
   User,
@@ -65,6 +64,11 @@ export type MessageInputProps = Omit<
   onCommandSelect?: (command: MessageInputCommand | null) => void;
   onSubmit?: (payload: MessageInputSubmitPayload) => void;
   onAttachmentClick?: () => void;
+  leadingActions?: React.ReactNode;
+  showHints?: boolean;
+  composerClassName?: string;
+  textareaClassName?: string;
+  toolbarClassName?: string;
   submitLabel?: string;
   attachmentLabel?: string;
   maxLength?: number;
@@ -322,10 +326,12 @@ export function MessageInput({
   attachmentLabel = "Attach",
   className,
   commands = [],
+  composerClassName,
   defaultValue,
   disabled = false,
   entities = [],
   isSubmitting = false,
+  leadingActions,
   maxLength = 4000,
   maxRows = 8,
   minRows = 2,
@@ -337,7 +343,10 @@ export function MessageInput({
   onSubmit,
   onValueChange,
   placeholder = "Ask anything...",
+  showHints = true,
   submitLabel = "Send",
+  textareaClassName,
+  toolbarClassName,
   value,
   ...props
 }: MessageInputProps) {
@@ -563,9 +572,10 @@ export function MessageInput({
 
       <div
         className={cn(
-          "rounded-2xl border bg-background shadow-sm transition-colors",
-          "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/20",
+          "rounded-lg bg-background transition-colors",
+          "focus-within:ring-3 focus-within:ring-ring/20",
           disabled && "opacity-60",
+          composerClassName,
         )}
       >
         {selectedCommand ? (
@@ -602,13 +612,19 @@ export function MessageInput({
           aria-controls={showSuggestions ? listId : undefined}
           aria-expanded={showSuggestions}
           className={cn(
-            "max-h-64 min-h-0 resize-none rounded-2xl border-0 bg-transparent px-4 py-3 shadow-none",
-            "focus-visible:ring-0",
+            "max-h-64 min-h-0 resize-none rounded-lg border-0 bg-transparent px-4 py-3 shadow-none",
+            "focus-visible:ring-0 [&::-webkit-resizer]:hidden",
+            textareaClassName,
           )}
         />
 
-        <div className="flex items-center justify-between gap-2 px-2.5 pb-2.5">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div
+          className={cn(
+            "flex items-center justify-between gap-2 px-3 pt-0 pb-3",
+            toolbarClassName,
+          )}
+        >
+          <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
             {onAttachmentClick ? (
               <Button
                 type="button"
@@ -617,43 +633,44 @@ export function MessageInput({
                 onClick={onAttachmentClick}
                 disabled={disabled}
                 aria-label={attachmentLabel}
+                className="rounded-full"
               >
-                <Paperclip className="size-4" />
+                <Plus className="size-4" />
               </Button>
             ) : null}
-            <span className="hidden sm:inline">
-              <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
-                @
-              </kbd>{" "}
-              mention
-              {commands.length > 0 || onSearchCommands ? (
-                <>
-                  {" "}
-                  ·{" "}
-                  <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
-                    /
-                  </kbd>{" "}
-                  command
-                </>
-              ) : null}
-            </span>
+            {leadingActions}
+            {showHints ? (
+              <span className="hidden truncate sm:inline">
+                <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
+                  @
+                </kbd>{" "}
+                mention
+                {commands.length > 0 || onSearchCommands ? (
+                  <>
+                    {" "}
+                    ·{" "}
+                    <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
+                      /
+                    </kbd>{" "}
+                    command
+                  </>
+                ) : null}
+              </span>
+            ) : null}
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden items-center gap-1 text-xs text-muted-foreground md:flex">
-              <CornerDownLeft className="size-3.5" />
-              Send
-            </span>
             <Button
               type="submit"
               size="icon"
               disabled={!canSubmit}
               aria-label={submitLabel}
+              className="size-9 rounded-full"
             >
               {isSubmitting ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
-                <Send className="size-4" />
+                <ArrowUp className="size-4" />
               )}
             </Button>
           </div>

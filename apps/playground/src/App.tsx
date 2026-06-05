@@ -4,9 +4,11 @@ import {
   CheckCircle2,
   Columns3,
   FileText,
+  Mic,
   Moon,
   PanelLeft,
   RotateCcw,
+  Search,
   Sparkles,
   Sun,
   Wand2,
@@ -213,6 +215,7 @@ function MessageInputScenario({ commands = true }: { commands?: boolean }) {
   return (
     <div className="grid gap-4">
       <MessageInput
+        composerClassName="border shadow-sm"
         placeholder={
           commands
             ? "Ask Orb to summarize @Ada or use /rewrite..."
@@ -220,6 +223,29 @@ function MessageInputScenario({ commands = true }: { commands?: boolean }) {
         }
         entities={messageEntities}
         commands={commands ? messageCommands : []}
+        onAttachmentClick={() => undefined}
+        leadingActions={
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full"
+              aria-label="Search context"
+            >
+              <Search className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full"
+              aria-label="Voice input"
+            >
+              <Mic className="size-4" />
+            </Button>
+          </>
+        }
         onSearchEntities={(query) =>
           new Promise((resolve) => {
             window.setTimeout(() => {

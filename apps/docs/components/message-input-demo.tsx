@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Bot, FileText, Sparkles, Wand2 } from "lucide-react";
+import { Bot, FileText, Mic, Search, Sparkles, Wand2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   MessageInput,
   type MessageInputCommand,
@@ -76,10 +77,34 @@ export function MessageInputDemo() {
   return (
     <div className="grid gap-4">
       <MessageInput
+        composerClassName="border shadow-sm"
         placeholder="Ask Orb to summarize @Ada or use /rewrite..."
         entities={entities}
         commands={commands}
         onSearchEntities={searchEntities}
+        onAttachmentClick={() => undefined}
+        leadingActions={
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full"
+              aria-label="Search context"
+            >
+              <Search className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full"
+              aria-label="Voice input"
+            >
+              <Mic className="size-4" />
+            </Button>
+          </>
+        }
         onSubmit={setPayload}
       />
 

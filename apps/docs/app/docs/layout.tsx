@@ -1,5 +1,11 @@
 import type { ReactNode } from "react"
-import { Braces, FileText, Github, Terminal } from "lucide-react"
+import {
+  Braces,
+  FileText,
+  Github,
+  MessageSquareText,
+  Terminal,
+} from "lucide-react"
 import { DocsLayout as FumadocsDocsLayout } from "fumadocs-ui/layouts/docs"
 
 import { source } from "@/lib/source"
@@ -13,6 +19,12 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
         url: "/docs",
       }}
       links={[
+        {
+          type: "main",
+          text: "Message Input",
+          url: "/docs/components/message-input",
+          icon: <MessageSquareText className="size-4" />,
+        },
         {
           type: "main",
           text: "MDKit Editor",

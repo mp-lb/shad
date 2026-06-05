@@ -4,6 +4,21 @@
   "homepage": "https://shad.mp-lb.dev",
   "items": [
     {
+      "name": "message-input",
+      "type": "registry:component",
+      "title": "Message Input",
+      "description": "AI chat input with entity mentions, optional slash commands, async suggestions, and submit payload metadata.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["button", "textarea"],
+      "categories": ["chat", "ai", "forms"],
+      "files": [
+        {
+          "path": "registry/message-input/message-input.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "mdkit-editor",
       "type": "registry:component",
       "title": "MDKit Editor",

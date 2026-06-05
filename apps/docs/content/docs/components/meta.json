@@ -1,6 +1,7 @@
 {
   "title": "Components",
   "pages": [
+    "message-input",
     "mdkit-editor",
     "array-editor",
     "modal",

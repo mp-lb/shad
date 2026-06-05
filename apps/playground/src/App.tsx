@@ -1,11 +1,15 @@
 import * as React from "react"
 import {
+  Bot,
   CheckCircle2,
   Columns3,
+  FileText,
   Moon,
   PanelLeft,
   RotateCcw,
+  Sparkles,
   Sun,
+  Wand2,
 } from "lucide-react"
 
 import {
@@ -14,6 +18,12 @@ import {
 } from "@/components/array-editor"
 import { JsonViewer } from "@/components/json-viewer"
 import { MdKitLocalEditor } from "@/components/mdkit-editor"
+import {
+  MessageInput,
+  type MessageInputCommand,
+  type MessageInputEntity,
+  type MessageInputSubmitPayload,
+} from "@/components/message-input"
 import { AlertModal, FullscreenModal, StandardModal } from "@/components/modal"
 import { StructuredLogViewer } from "@/components/structured-log-viewer"
 import {
@@ -27,6 +37,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type ComponentId =
+  | "message-input"
   | "json-viewer"
   | "array-editor"
   | "structured-log-viewer"
@@ -52,6 +63,7 @@ type ComponentGroup = {
 }
 
 const componentOrder: ComponentId[] = [
+  "message-input",
   "json-viewer",
   "array-editor",
   "structured-log-viewer",
@@ -108,6 +120,50 @@ const initialArrayItems: ArrayEditorObjectItem[] = [
   { id: "stress", label: "Stress data", description: "Long lists and labels" },
 ]
 
+const messageEntities: MessageInputEntity[] = [
+  {
+    id: "ada",
+    label: "Ada Lovelace",
+    type: "user",
+    description: "Product engineering",
+  },
+  {
+    id: "grace",
+    label: "Grace Hopper",
+    type: "user",
+    description: "Compiler systems",
+  },
+  {
+    id: "orb",
+    label: "Orb Assistant",
+    type: "assistant",
+    description: "AI project helper",
+    icon: Bot,
+  },
+  {
+    id: "brief",
+    label: "Launch Brief",
+    type: "document",
+    description: "Shared planning document",
+    icon: FileText,
+  },
+]
+
+const messageCommands: MessageInputCommand[] = [
+  {
+    id: "summarize",
+    label: "Summarize",
+    description: "Condense the current context.",
+    icon: Sparkles,
+  },
+  {
+    id: "rewrite",
+    label: "Rewrite",
+    description: "Improve tone and clarity.",
+    icon: Wand2,
+  },
+]
+
 const logEvents = Array.from({ length: 24 }, (_, index) => {
   const status = index % 9 === 0 ? 500 : index % 5 === 0 ? 404 : 200
 
@@ -148,6 +204,54 @@ function move<T>(items: T[], fromIndex: number, toIndex: number): T[] {
   const [item] = next.splice(fromIndex, 1)
   next.splice(toIndex, 0, item)
   return next
+}
+
+function MessageInputScenario({ commands = true }: { commands?: boolean }) {
+  const [payload, setPayload] =
+    React.useState<MessageInputSubmitPayload | null>(null)
+
+  return (
+    <div className="grid gap-4">
+      <MessageInput
+        placeholder={
+          commands
+            ? "Ask Orb to summarize @Ada or use /rewrite..."
+            : "Tag a person, bot, or document with @..."
+        }
+        entities={messageEntities}
+        commands={commands ? messageCommands : []}
+        onSearchEntities={(query) =>
+          new Promise((resolve) => {
+            window.setTimeout(() => {
+              const normalizedQuery = query.toLowerCase()
+              resolve(
+                messageEntities.filter((entity) =>
+                  [entity.label, entity.type, entity.description]
+                    .filter(Boolean)
+                    .some((value) =>
+                      value!.toLowerCase().includes(normalizedQuery)
+                    )
+                )
+              )
+            }, 180)
+          })
+        }
+        onSubmit={setPayload}
+      />
+      <div className="rounded-md border bg-muted/30 p-3">
+        <div className="text-xs font-medium uppercase text-muted-foreground">
+          Submit payload
+        </div>
+        <pre className="mt-2 overflow-auto text-xs">
+          {JSON.stringify(
+            payload ?? { text: "", entities: [], command: null },
+            null,
+            2
+          )}
+        </pre>
+      </div>
+    </div>
+  )
 }
 
 function ArrayEditorScenario({
@@ -324,6 +428,25 @@ function MdKitScenario({ fillHeight }: { fillHeight: boolean }) {
 }
 
 const components: Record<ComponentId, ComponentGroup> = {
+  "message-input": {
+    id: "message-input",
+    title: "Message Input",
+    description: "AI chat composer with mentions and optional commands.",
+    scenarios: [
+      {
+        id: "mentions-commands",
+        title: "Mentions and commands",
+        description: "Async @ entity search plus / command selection.",
+        render: () => <MessageInputScenario />,
+      },
+      {
+        id: "mentions-only",
+        title: "Mentions only",
+        description: "Entity tagging without slash commands.",
+        render: () => <MessageInputScenario commands={false} />,
+      },
+    ],
+  },
   "json-viewer": {
     id: "json-viewer",
     title: "JSON Viewer",
@@ -486,8 +609,8 @@ const widthClasses: Record<WidthMode, string> = {
 
 function App() {
   const [componentId, setComponentId] =
-    React.useState<ComponentId>("json-viewer")
-  const [scenarioId, setScenarioId] = React.useState("complex")
+    React.useState<ComponentId>("message-input")
+  const [scenarioId, setScenarioId] = React.useState("mentions-commands")
   const [widthMode, setWidthMode] = React.useState<WidthMode>("wide")
   const [themeMode, setThemeMode] = React.useState<ThemeMode>("light")
   const activeComponent = components[componentId]

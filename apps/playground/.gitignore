@@ -12,16 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Registry install output. Recreated by `pnpm playground:install`.
-src/components/array-editor.tsx
-src/components/json-viewer.tsx
-src/components/json-viewer/
-src/components/mdkit-editor.tsx
-src/components/modal.tsx
-src/components/structured-log-viewer.tsx
-src/components/ui/
-src/components/ui-states/
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -9,5 +9,6 @@ pnpm playground:dev
 ```
 
 The root script rebuilds the local registry JSON and reinstalls registry items
-into this app before Vite starts. Generated installed components are ignored by
-git on purpose; edit the source files in `../../registry` instead.
+into this app before Vite starts. The installed component snapshot is committed
+so Tailwind v4 can scan it; edit the source files in `../../registry` and rerun
+the install/build script to refresh the playground copy.

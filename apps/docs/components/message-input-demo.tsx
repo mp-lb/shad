@@ -84,26 +84,26 @@ export function MessageInputDemo() {
         onSearchEntities={searchEntities}
         onAttachmentClick={() => undefined}
         leadingActions={
-          <>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="rounded-full"
-              aria-label="Search context"
-            >
-              <Search className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="rounded-full"
-              aria-label="Voice input"
-            >
-              <Mic className="size-4" />
-            </Button>
-          </>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="rounded-full"
+            aria-label="Search context"
+          >
+            <Search className="size-4" />
+          </Button>
+        }
+        trailingActions={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="rounded-full"
+            aria-label="Voice input"
+          >
+            <Mic className="size-4" />
+          </Button>
         }
         onSubmit={setPayload}
       />

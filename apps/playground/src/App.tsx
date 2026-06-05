@@ -213,7 +213,7 @@ function MessageInputScenario({ commands = true }: { commands?: boolean }) {
     React.useState<MessageInputSubmitPayload | null>(null)
 
   return (
-    <div className="grid gap-4">
+    <div className="flex min-h-[560px] flex-col justify-end gap-4">
       <MessageInput
         composerClassName="border shadow-sm"
         placeholder={
@@ -225,26 +225,26 @@ function MessageInputScenario({ commands = true }: { commands?: boolean }) {
         commands={commands ? messageCommands : []}
         onAttachmentClick={() => undefined}
         leadingActions={
-          <>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="rounded-full"
-              aria-label="Search context"
-            >
-              <Search className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="rounded-full"
-              aria-label="Voice input"
-            >
-              <Mic className="size-4" />
-            </Button>
-          </>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="rounded-full"
+            aria-label="Search context"
+          >
+            <Search className="size-4" />
+          </Button>
+        }
+        trailingActions={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="rounded-full"
+            aria-label="Voice input"
+          >
+            <Mic className="size-4" />
+          </Button>
         }
         onSearchEntities={(query) =>
           new Promise((resolve) => {

@@ -65,7 +65,8 @@ export type MessageInputProps = Omit<
   onSubmit?: (payload: MessageInputSubmitPayload) => void;
   onAttachmentClick?: () => void;
   leadingActions?: React.ReactNode;
-  showHints?: boolean;
+  trailingActions?: React.ReactNode;
+  suggestionsPlacement?: "auto" | "top" | "bottom";
   composerClassName?: string;
   textareaClassName?: string;
   toolbarClassName?: string;
@@ -242,6 +243,7 @@ function SuggestionsList({
   activeIndex,
   id,
   isLoading,
+  placement,
   query,
   suggestions,
   triggerKind,
@@ -250,6 +252,7 @@ function SuggestionsList({
   activeIndex: number;
   id: string;
   isLoading: boolean;
+  placement: "top" | "bottom";
   query: string;
   suggestions: Suggestion[];
   triggerKind: TriggerKind;
@@ -261,7 +264,10 @@ function SuggestionsList({
     <div
       id={id}
       role="listbox"
-      className="absolute right-0 bottom-full left-0 z-20 mb-2 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg"
+      className={cn(
+        "absolute right-0 left-0 z-20 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg",
+        placement === "top" ? "bottom-full mb-2" : "top-full mt-2",
+      )}
     >
       <div className="flex items-center justify-between border-b px-3 py-2">
         <div className="text-xs font-medium text-muted-foreground">
@@ -343,14 +349,16 @@ export function MessageInput({
   onSubmit,
   onValueChange,
   placeholder = "Ask anything...",
-  showHints = true,
+  suggestionsPlacement = "auto",
   submitLabel = "Send",
   textareaClassName,
   toolbarClassName,
+  trailingActions,
   value,
   ...props
 }: MessageInputProps) {
   const listId = React.useId();
+  const formRef = React.useRef<HTMLFormElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const searchRequestRef = React.useRef(0);
   const [text, setText] = useControllableValue({
@@ -369,15 +377,40 @@ export function MessageInput({
   >([]);
   const [selectedCommand, setSelectedCommand] =
     React.useState<MessageInputCommand | null>(null);
+  const [resolvedSuggestionsPlacement, setResolvedSuggestionsPlacement] =
+    React.useState<"top" | "bottom">("top");
 
   const canSubmit = text.trim().length > 0 && !disabled && !isSubmitting;
   const showSuggestions = Boolean(activeTrigger);
 
-  const refreshTrigger = React.useCallback((nextText: string) => {
-    const input = textareaRef.current;
-    const cursor = input?.selectionStart ?? nextText.length;
-    setActiveTrigger(getActiveTrigger(nextText, cursor));
-  }, []);
+  const updateSuggestionsPlacement = React.useCallback(() => {
+    if (suggestionsPlacement !== "auto") {
+      setResolvedSuggestionsPlacement(suggestionsPlacement);
+      return;
+    }
+
+    const rect = formRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setResolvedSuggestionsPlacement(
+      spaceBelow > spaceAbove && spaceAbove < 280 ? "bottom" : "top",
+    );
+  }, [suggestionsPlacement]);
+
+  const refreshTrigger = React.useCallback(
+    (nextText: string) => {
+      const input = textareaRef.current;
+      const cursor = input?.selectionStart ?? nextText.length;
+      const nextTrigger = getActiveTrigger(nextText, cursor);
+      if (nextTrigger) {
+        updateSuggestionsPlacement();
+      }
+      setActiveTrigger(nextTrigger);
+    },
+    [updateSuggestionsPlacement],
+  );
 
   React.useEffect(() => {
     if (!activeTrigger) {
@@ -550,6 +583,7 @@ export function MessageInput({
 
   return (
     <form
+      ref={formRef}
       data-slot="message-input"
       className={cn("relative", className)}
       onSubmit={(event) => {
@@ -563,6 +597,7 @@ export function MessageInput({
           activeIndex={selectedIndex}
           id={listId}
           isLoading={isSearching}
+          placement={resolvedSuggestionsPlacement}
           query={activeTrigger?.query ?? ""}
           suggestions={suggestions}
           triggerKind={activeTrigger?.kind ?? "entity"}
@@ -639,27 +674,10 @@ export function MessageInput({
               </Button>
             ) : null}
             {leadingActions}
-            {showHints ? (
-              <span className="hidden truncate sm:inline">
-                <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
-                  @
-                </kbd>{" "}
-                mention
-                {commands.length > 0 || onSearchCommands ? (
-                  <>
-                    {" "}
-                    ·{" "}
-                    <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
-                      /
-                    </kbd>{" "}
-                    command
-                  </>
-                ) : null}
-              </span>
-            ) : null}
           </div>
 
           <div className="flex items-center gap-2">
+            {trailingActions}
             <Button
               type="submit"
               size="icon"

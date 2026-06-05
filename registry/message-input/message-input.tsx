@@ -1,6 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { mergeAttributes, Node, type JSONContent } from "@tiptap/core";
+import Placeholder from "@tiptap/extension-placeholder";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
   ArrowUp,
   Bot,
@@ -16,7 +20,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 export type MessageInputEntity = {
@@ -26,6 +29,7 @@ export type MessageInputEntity = {
   description?: string;
   avatarUrl?: string;
   icon?: LucideIcon;
+  color?: "blue" | "violet" | "amber" | "rose" | "emerald";
 };
 
 export type MessageInputCommand = {
@@ -40,15 +44,16 @@ export type MessageInputSubmitPayload = {
   text: string;
   entities: MessageInputEntity[];
   command: MessageInputCommand | null;
+  content: JSONContent;
 };
 
 export type MessageInputProps = Omit<
   React.ComponentProps<"form">,
   "onSubmit" | "onChange"
 > & {
-  value?: string;
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
+  value?: JSONContent;
+  defaultValue?: JSONContent | string;
+  onValueChange?: (content: JSONContent, text: string) => void;
   placeholder?: string;
   disabled?: boolean;
   isSubmitting?: boolean;
@@ -68,13 +73,11 @@ export type MessageInputProps = Omit<
   trailingActions?: React.ReactNode;
   suggestionsPlacement?: "auto" | "top" | "bottom";
   composerClassName?: string;
-  textareaClassName?: string;
+  editorClassName?: string;
   toolbarClassName?: string;
   submitLabel?: string;
   attachmentLabel?: string;
-  maxLength?: number;
-  minRows?: number;
-  maxRows?: number;
+  minHeight?: number;
 };
 
 type TriggerKind = "entity" | "command";
@@ -82,8 +85,8 @@ type TriggerKind = "entity" | "command";
 type ActiveTrigger = {
   kind: TriggerKind;
   query: string;
-  startIndex: number;
-  endIndex: number;
+  from: number;
+  to: number;
 };
 
 type Suggestion =
@@ -96,55 +99,150 @@ type Suggestion =
       item: MessageInputCommand;
     };
 
-function useControllableValue({
-  value,
-  defaultValue = "",
-  onValueChange,
-}: {
-  value?: string;
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
-}) {
-  const [internalValue, setInternalValue] = React.useState(defaultValue);
-  const isControlled = value !== undefined;
-  const currentValue = isControlled ? value : internalValue;
+const defaultContent: JSONContent = {
+  type: "doc",
+  content: [{ type: "paragraph" }],
+};
 
-  const setValue = React.useCallback(
-    (nextValue: string) => {
-      if (!isControlled) {
-        setInternalValue(nextValue);
-      }
+const MessageInputMention = Node.create({
+  name: "messageInputMention",
+  group: "inline",
+  inline: true,
+  atom: true,
+  selectable: false,
 
-      onValueChange?.(nextValue);
-    },
-    [isControlled, onValueChange],
-  );
+  addAttributes() {
+    return {
+      id: { default: "" },
+      label: { default: "" },
+      type: { default: "user" },
+      color: { default: "blue" },
+    };
+  },
 
-  return [currentValue, setValue] as const;
+  parseHTML() {
+    return [{ tag: "span[data-message-input-mention]" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "span",
+      mergeAttributes(HTMLAttributes, {
+        "data-message-input-mention": "",
+        class: cn(
+          "inline-flex items-center rounded-full px-1.5 py-0.5 text-sm font-semibold leading-none",
+          getMentionColorClassName(String(HTMLAttributes.color ?? "blue")),
+        ),
+      }),
+      `@${HTMLAttributes.label}`,
+    ];
+  },
+
+  renderText({ node }) {
+    return `@${node.attrs.label}`;
+  },
+});
+
+function getMentionColorClassName(color: string) {
+  switch (color) {
+    case "amber":
+      return "bg-amber-500/10 text-amber-700 dark:text-amber-300";
+    case "emerald":
+      return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    case "rose":
+      return "bg-rose-500/10 text-rose-700 dark:text-rose-300";
+    case "violet":
+      return "bg-violet-500/10 text-violet-700 dark:text-violet-300";
+    default:
+      return "bg-blue-500/10 text-blue-700 dark:text-blue-300";
+  }
 }
 
-function getActiveTrigger(text: string, cursorPosition: number): ActiveTrigger | null {
-  const beforeCursor = text.slice(0, cursorPosition);
+function getEntityColor(entity: MessageInputEntity) {
+  if (entity.color) return entity.color;
+  if (entity.type === "file" || entity.type === "document") return "amber";
+  if (entity.type === "bot" || entity.type === "assistant") return "violet";
+  if (entity.type === "error" || entity.type === "danger") return "rose";
+  return "blue";
+}
+
+function normalizeContent(value?: JSONContent | string): JSONContent {
+  if (!value) return defaultContent;
+  if (typeof value !== "string") return value;
+
+  return {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: value ? [{ type: "text", text: value }] : undefined,
+      },
+    ],
+  };
+}
+
+function getTextFromContent(content: JSONContent): string {
+  if (content.type === "text") return content.text ?? "";
+  if (content.type === "messageInputMention") {
+    return `@${String(content.attrs?.label ?? "")}`;
+  }
+
+  return (content.content ?? []).map(getTextFromContent).join("");
+}
+
+function getEntitiesFromContent(
+  content: JSONContent,
+  entities: MessageInputEntity[],
+): MessageInputEntity[] {
+  const byId = new Map(entities.map((entity) => [entity.id, entity]));
+  const found = new Map<string, MessageInputEntity>();
+
+  function visit(node: JSONContent) {
+    if (node.type === "messageInputMention") {
+      const id = String(node.attrs?.id ?? "");
+      const fallback: MessageInputEntity = {
+        id,
+        label: String(node.attrs?.label ?? ""),
+        type: String(node.attrs?.type ?? "user"),
+        color: String(node.attrs?.color ?? "blue") as MessageInputEntity["color"],
+      };
+      found.set(id, byId.get(id) ?? fallback);
+    }
+
+    node.content?.forEach(visit);
+  }
+
+  visit(content);
+  return [...found.values()];
+}
+
+function getActiveTriggerFromEditor(editor: NonNullable<ReturnType<typeof useEditor>>): ActiveTrigger | null {
+  const { from } = editor.state.selection;
+  const beforeCursor = editor.state.doc.textBetween(
+    Math.max(0, from - 80),
+    from,
+    "\n",
+    "\ufffc",
+  );
   const tokenMatch = /(^|[\s([{])([@/])([^\s@/]*)$/.exec(beforeCursor);
 
-  if (!tokenMatch) {
-    return null;
-  }
+  if (!tokenMatch) return null;
 
   const prefix = tokenMatch[1] ?? "";
   const trigger = tokenMatch[2];
   const query = tokenMatch[3] ?? "";
-  const startIndex = tokenMatch.index + prefix.length;
+  const tokenLength = trigger.length + query.length;
+  const triggerFrom = from - tokenLength;
 
-  if (trigger === "/" && prefix !== "" && !beforeCursor.slice(0, startIndex).trim()) {
+  if (trigger === "/" && prefix !== "" && beforeCursor.slice(0, tokenMatch.index + prefix.length).trim()) {
     return null;
   }
 
   return {
     kind: trigger === "@" ? "entity" : "command",
     query,
-    startIndex,
-    endIndex: cursorPosition,
+    from: triggerFrom,
+    to: from,
   };
 }
 
@@ -186,24 +284,6 @@ function filterCommands(items: MessageInputCommand[], query: string) {
       .filter(Boolean)
       .some((value) => value!.toLowerCase().includes(normalizedQuery)),
   );
-}
-
-function insertSuggestionText({
-  text,
-  trigger,
-  replacement,
-}: {
-  text: string;
-  trigger: ActiveTrigger;
-  replacement: string;
-}) {
-  const before = text.slice(0, trigger.startIndex);
-  const after = text.slice(trigger.endIndex);
-  const spacer = after.startsWith(" ") || after.length === 0 ? "" : " ";
-  const nextText = `${before}${replacement} ${spacer}${after}`;
-  const nextCursor = before.length + replacement.length + 1;
-
-  return { nextText, nextCursor };
 }
 
 function SuggestionIcon({ suggestion }: { suggestion: Suggestion }) {
@@ -335,12 +415,11 @@ export function MessageInput({
   composerClassName,
   defaultValue,
   disabled = false,
+  editorClassName,
   entities = [],
   isSubmitting = false,
   leadingActions,
-  maxLength = 4000,
-  maxRows = 8,
-  minRows = 2,
+  minHeight = 72,
   onAttachmentClick,
   onCommandSelect,
   onEntitySelect,
@@ -351,7 +430,6 @@ export function MessageInput({
   placeholder = "Ask anything...",
   suggestionsPlacement = "auto",
   submitLabel = "Send",
-  textareaClassName,
   toolbarClassName,
   trailingActions,
   value,
@@ -359,29 +437,25 @@ export function MessageInput({
 }: MessageInputProps) {
   const listId = React.useId();
   const formRef = React.useRef<HTMLFormElement>(null);
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const searchRequestRef = React.useRef(0);
-  const [text, setText] = useControllableValue({
-    value,
-    defaultValue,
-    onValueChange,
-  });
-  const [activeTrigger, setActiveTrigger] = React.useState<ActiveTrigger | null>(
-    null,
-  );
+  const isApplyingValueRef = React.useRef(false);
+  const activeTriggerRef = React.useRef<ActiveTrigger | null>(null);
+  const suggestionsRef = React.useRef<Suggestion[]>([]);
+  const selectedIndexRef = React.useRef(0);
+  const [activeTrigger, setActiveTrigger] = React.useState<ActiveTrigger | null>(null);
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const [isSearching, setIsSearching] = React.useState(false);
-  const [selectedEntities, setSelectedEntities] = React.useState<
-    MessageInputEntity[]
-  >([]);
   const [selectedCommand, setSelectedCommand] =
     React.useState<MessageInputCommand | null>(null);
   const [resolvedSuggestionsPlacement, setResolvedSuggestionsPlacement] =
     React.useState<"top" | "bottom">("top");
-
-  const canSubmit = text.trim().length > 0 && !disabled && !isSubmitting;
-  const showSuggestions = Boolean(activeTrigger);
+  const selectSuggestionRef = React.useRef<((suggestion: Suggestion) => void) | null>(null);
+  const submitRef = React.useRef<(() => void) | null>(null);
+  const [editorState, setEditorState] = React.useState(() => ({
+    content: normalizeContent(defaultValue),
+    text: typeof defaultValue === "string" ? defaultValue : "",
+  }));
 
   const updateSuggestionsPlacement = React.useCallback(() => {
     if (suggestionsPlacement !== "auto") {
@@ -399,18 +473,134 @@ export function MessageInput({
     );
   }, [suggestionsPlacement]);
 
-  const refreshTrigger = React.useCallback(
-    (nextText: string) => {
-      const input = textareaRef.current;
-      const cursor = input?.selectionStart ?? nextText.length;
-      const nextTrigger = getActiveTrigger(nextText, cursor);
+  const editor = useEditor({
+    immediatelyRender: false,
+    editable: !disabled,
+    extensions: [
+      StarterKit.configure({
+        blockquote: false,
+        bulletList: false,
+        code: false,
+        codeBlock: false,
+        dropcursor: false,
+        gapcursor: false,
+        hardBreak: false,
+        heading: false,
+        horizontalRule: false,
+        listItem: false,
+        orderedList: false,
+      }),
+      MessageInputMention,
+      Placeholder.configure({ placeholder }),
+    ],
+    content: value ?? normalizeContent(defaultValue),
+    editorProps: {
+      attributes: {
+        class: cn(
+          "min-h-0 max-h-64 overflow-y-auto px-4 py-3 text-sm leading-6 outline-none",
+          "proseMirror-message-input",
+          "[&_.is-empty:first-child::before]:pointer-events-none [&_.is-empty:first-child::before]:float-left [&_.is-empty:first-child::before]:h-0 [&_.is-empty:first-child::before]:text-muted-foreground [&_.is-empty:first-child::before]:content-[attr(data-placeholder)]",
+          editorClassName,
+        ),
+        style: `min-height: ${minHeight}px`,
+      },
+      handleKeyDown: (_view, event) => {
+        const currentSuggestions = suggestionsRef.current;
+        if (activeTriggerRef.current && currentSuggestions.length > 0) {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setSelectedIndex((current) => (current + 1) % currentSuggestions.length);
+            return true;
+          }
+
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setSelectedIndex(
+              (current) =>
+                (current - 1 + currentSuggestions.length) %
+                currentSuggestions.length,
+            );
+            return true;
+          }
+
+          if (event.key === "Enter" || event.key === "Tab") {
+            event.preventDefault();
+            selectSuggestionRef.current?.(
+              currentSuggestions[selectedIndexRef.current],
+            );
+            return true;
+          }
+
+          if (event.key === "Escape") {
+            event.preventDefault();
+            setActiveTrigger(null);
+            return true;
+          }
+        }
+
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          submitRef.current?.();
+          return true;
+        }
+
+        return false;
+      },
+    },
+    onUpdate: ({ editor }) => {
+      if (isApplyingValueRef.current) return;
+
+      const content = editor.getJSON();
+      const text = getTextFromContent(content);
+      setEditorState({ content, text });
+      onValueChange?.(content, text);
+
+      const nextTrigger = getActiveTriggerFromEditor(editor);
       if (nextTrigger) {
         updateSuggestionsPlacement();
       }
       setActiveTrigger(nextTrigger);
     },
-    [updateSuggestionsPlacement],
-  );
+    onSelectionUpdate: ({ editor }) => {
+      const nextTrigger = getActiveTriggerFromEditor(editor);
+      if (nextTrigger) {
+        updateSuggestionsPlacement();
+      }
+      setActiveTrigger(nextTrigger);
+    },
+  });
+
+  const canSubmit = editorState.text.trim().length > 0 && !disabled && !isSubmitting;
+  const showSuggestions = Boolean(activeTrigger);
+
+  React.useEffect(() => {
+    activeTriggerRef.current = activeTrigger;
+  }, [activeTrigger]);
+
+  React.useEffect(() => {
+    suggestionsRef.current = suggestions;
+  }, [suggestions]);
+
+  React.useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+
+  React.useEffect(() => {
+    editor?.setEditable(!disabled);
+  }, [disabled, editor]);
+
+  React.useEffect(() => {
+    if (!editor || value === undefined) return;
+    const current = JSON.stringify(editor.getJSON());
+    const next = JSON.stringify(value);
+    if (current === next) return;
+
+    isApplyingValueRef.current = true;
+    editor.commands.setContent(value);
+    const content = editor.getJSON();
+    setEditorState({ content, text: getTextFromContent(content) });
+    isApplyingValueRef.current = false;
+  }, [editor, value]);
 
   React.useEffect(() => {
     if (!activeTrigger) {
@@ -469,117 +659,59 @@ export function MessageInput({
 
   const selectSuggestion = React.useCallback(
     (suggestion: Suggestion) => {
-      if (!activeTrigger) return;
+      if (!activeTrigger || !editor) return;
 
       if (suggestion.kind === "entity") {
-        const { nextText, nextCursor } = insertSuggestionText({
-          text,
-          trigger: activeTrigger,
-          replacement: `@${suggestion.item.label}`,
-        });
-
-        setText(nextText);
-        setSelectedEntities((current) => {
-          const withoutDuplicate = current.filter(
-            (item) => item.id !== suggestion.item.id,
-          );
-          return [...withoutDuplicate, suggestion.item];
-        });
+        editor
+          .chain()
+          .focus()
+          .deleteRange({ from: activeTrigger.from, to: activeTrigger.to })
+          .insertContent([
+            {
+              type: "messageInputMention",
+              attrs: {
+                id: suggestion.item.id,
+                label: suggestion.item.label,
+                type: suggestion.item.type ?? "user",
+                color: getEntityColor(suggestion.item),
+              },
+            },
+            { type: "text", text: " " },
+          ])
+          .run();
         onEntitySelect?.(suggestion.item);
         setActiveTrigger(null);
-
-        window.setTimeout(() => {
-          textareaRef.current?.focus();
-          textareaRef.current?.setSelectionRange(nextCursor, nextCursor);
-        }, 0);
         return;
       }
 
-      const { nextText, nextCursor } = insertSuggestionText({
-        text,
-        trigger: activeTrigger,
-        replacement: "",
-      });
-
-      setText(nextText.trimStart());
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from: activeTrigger.from, to: activeTrigger.to })
+        .run();
       setSelectedCommand(suggestion.item);
       onCommandSelect?.(suggestion.item);
       setActiveTrigger(null);
-
-      window.setTimeout(() => {
-        textareaRef.current?.focus();
-        textareaRef.current?.setSelectionRange(
-          Math.max(0, nextCursor - 1),
-          Math.max(0, nextCursor - 1),
-        );
-      }, 0);
     },
-    [
-      activeTrigger,
-      onCommandSelect,
-      onEntitySelect,
-      setText,
-      text,
-    ],
+    [activeTrigger, editor, onCommandSelect, onEntitySelect],
   );
 
-  function handleTextChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
-    const nextText = event.target.value;
-    setText(nextText);
-    window.requestAnimationFrame(() => refreshTrigger(nextText));
-  }
+  const submit = React.useCallback(() => {
+    if (!canSubmit || !editor) return;
 
-  function submit() {
-    if (!canSubmit) return;
-
+    const content = editor.getJSON();
     onSubmit?.({
-      text: text.trim(),
-      entities: selectedEntities.filter((entity) =>
-        text.toLowerCase().includes(`@${entity.label.toLowerCase()}`),
-      ),
+      text: getTextFromContent(content).trim(),
+      entities: getEntitiesFromContent(content, entities),
       command: selectedCommand,
+      content,
     });
-  }
+  }, [canSubmit, editor, entities, onSubmit, selectedCommand]);
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (showSuggestions && suggestions.length > 0) {
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        setSelectedIndex((current) => (current + 1) % suggestions.length);
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        setSelectedIndex(
-          (current) => (current - 1 + suggestions.length) % suggestions.length,
-        );
-        return;
-      }
-
-      if (event.key === "Enter" || event.key === "Tab") {
-        event.preventDefault();
-        selectSuggestion(suggestions[selectedIndex]);
-        return;
-      }
-
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setActiveTrigger(null);
-        return;
-      }
-    }
-
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      submit();
-    }
-  }
-
-  const rows = Math.min(
-    maxRows,
-    Math.max(minRows, text.split("\n").length || minRows),
-  );
+  React.useEffect(() => {
+    selectSuggestionRef.current = selectSuggestion;
+    submitRef.current = submit;
+  }, [selectSuggestion, submit]);
 
   return (
     <form
@@ -633,25 +765,7 @@ export function MessageInput({
           </div>
         ) : null}
 
-        <Textarea
-          ref={textareaRef}
-          value={text}
-          onChange={handleTextChange}
-          onClick={() => refreshTrigger(text)}
-          onKeyUp={() => refreshTrigger(text)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          maxLength={maxLength}
-          rows={rows}
-          aria-controls={showSuggestions ? listId : undefined}
-          aria-expanded={showSuggestions}
-          className={cn(
-            "max-h-64 min-h-0 resize-none rounded-lg border-0 bg-transparent px-4 py-3 shadow-none",
-            "focus-visible:ring-0 [&::-webkit-resizer]:hidden",
-            textareaClassName,
-          )}
-        />
+        <EditorContent editor={editor} />
 
         <div
           className={cn(

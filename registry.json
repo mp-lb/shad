@@ -8,8 +8,14 @@
       "type": "registry:component",
       "title": "Message Input",
       "description": "AI chat input with entity mentions, optional slash commands, async suggestions, and submit payload metadata.",
-      "dependencies": ["lucide-react"],
-      "registryDependencies": ["button", "textarea"],
+      "dependencies": [
+        "@tiptap/core",
+        "@tiptap/extension-placeholder",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "lucide-react"
+      ],
+      "registryDependencies": ["button"],
       "categories": ["chat", "ai", "forms"],
       "files": [
         {

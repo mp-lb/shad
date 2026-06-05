@@ -83,132 +83,132 @@
         {
           "path": "registry/ui-states/ui-states.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/ui-states.tsx"
+          "target": "@components/ui-states/ui-states.tsx"
         },
         {
           "path": "registry/ui-states/dotm-loading.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-loading.tsx"
+          "target": "@components/ui-states/dotm-loading.tsx"
         },
         {
           "path": "registry/ui-states/dotm-squares.ts",
           "type": "registry:lib",
-          "target": "@/components/ui-states/dotm-squares.ts"
+          "target": "@components/ui-states/dotm-squares.ts"
         },
         {
           "path": "registry/ui-states/dotmatrix-core.tsx",
           "type": "registry:lib",
-          "target": "@/components/ui-states/dotmatrix-core.tsx"
+          "target": "@components/ui-states/dotmatrix-core.tsx"
         },
         {
           "path": "registry/ui-states/dotmatrix-hooks.ts",
           "type": "registry:lib",
-          "target": "@/components/ui-states/dotmatrix-hooks.ts"
+          "target": "@components/ui-states/dotmatrix-hooks.ts"
         },
         {
           "path": "registry/ui-states/dotmatrix-loader.css",
           "type": "registry:style",
-          "target": "@/components/ui-states/dotmatrix-loader.css"
+          "target": "@components/ui-states/dotmatrix-loader.css"
         },
         {
           "path": "registry/ui-states/dotm-square-1.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-1.tsx"
+          "target": "@components/ui-states/dotm-square-1.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-2.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-2.tsx"
+          "target": "@components/ui-states/dotm-square-2.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-3.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-3.tsx"
+          "target": "@components/ui-states/dotm-square-3.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-4.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-4.tsx"
+          "target": "@components/ui-states/dotm-square-4.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-5.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-5.tsx"
+          "target": "@components/ui-states/dotm-square-5.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-6.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-6.tsx"
+          "target": "@components/ui-states/dotm-square-6.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-7.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-7.tsx"
+          "target": "@components/ui-states/dotm-square-7.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-8.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-8.tsx"
+          "target": "@components/ui-states/dotm-square-8.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-9.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-9.tsx"
+          "target": "@components/ui-states/dotm-square-9.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-10.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-10.tsx"
+          "target": "@components/ui-states/dotm-square-10.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-11.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-11.tsx"
+          "target": "@components/ui-states/dotm-square-11.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-12.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-12.tsx"
+          "target": "@components/ui-states/dotm-square-12.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-13.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-13.tsx"
+          "target": "@components/ui-states/dotm-square-13.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-14.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-14.tsx"
+          "target": "@components/ui-states/dotm-square-14.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-15.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-15.tsx"
+          "target": "@components/ui-states/dotm-square-15.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-16.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-16.tsx"
+          "target": "@components/ui-states/dotm-square-16.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-17.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-17.tsx"
+          "target": "@components/ui-states/dotm-square-17.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-18.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-18.tsx"
+          "target": "@components/ui-states/dotm-square-18.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-19.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-19.tsx"
+          "target": "@components/ui-states/dotm-square-19.tsx"
         },
         {
           "path": "registry/ui-states/dotm-square-20.tsx",
           "type": "registry:component",
-          "target": "@/components/ui-states/dotm-square-20.tsx"
+          "target": "@components/ui-states/dotm-square-20.tsx"
         }
       ]
     },

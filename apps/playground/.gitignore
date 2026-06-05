@@ -1,0 +1,34 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Registry install output. Recreated by `pnpm playground:install`.
+src/components/array-editor.tsx
+src/components/json-viewer.tsx
+src/components/json-viewer/
+src/components/mdkit-editor.tsx
+src/components/modal.tsx
+src/components/structured-log-viewer.tsx
+src/components/ui/
+src/components/ui-states/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

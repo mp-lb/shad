@@ -7,7 +7,10 @@
     "dev": "pnpm registry:build && cd apps/docs && next dev",
     "build": "pnpm registry:build && cd apps/docs && next build",
     "preview": "cd apps/docs && next start",
-    "registry:build": "shadcn build registry.json -o apps/docs/public/r"
+    "registry:build": "shadcn build registry.json -o apps/docs/public/r",
+    "playground:install": "pnpm registry:build && shadcn add apps/docs/public/r/json-viewer.json apps/docs/public/r/array-editor.json apps/docs/public/r/modal.json apps/docs/public/r/ui-states.json apps/docs/public/r/mdkit-editor.json apps/docs/public/r/structured-log-viewer.json --cwd apps/playground --yes --overwrite",
+    "playground:dev": "pnpm playground:install && pnpm --filter playground dev",
+    "playground:build": "pnpm playground:install && pnpm --filter playground build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

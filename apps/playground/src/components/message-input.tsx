@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { mergeAttributes, Node, type JSONContent } from "@tiptap/core";
+import {
+  Extension,
+  mergeAttributes,
+  Node,
+  type Editor,
+  type JSONContent,
+} from "@tiptap/core";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -277,7 +283,7 @@ function getActiveTriggerFromEditor(editor: NonNullable<ReturnType<typeof useEdi
   };
 }
 
-function getLineRange(editor: NonNullable<ReturnType<typeof useEditor>>) {
+function getLineRange(editor: Editor) {
   const { from } = editor.state.selection;
   const docStart = Math.max(0, from - 10000);
   const beforeCursor = editor.state.doc.textBetween(docStart, from, "\n", "\n");
@@ -299,7 +305,7 @@ function getLineRange(editor: NonNullable<ReturnType<typeof useEditor>>) {
   };
 }
 
-function getPreviousWordRange(editor: NonNullable<ReturnType<typeof useEditor>>) {
+function getPreviousWordRange(editor: Editor) {
   const { from } = editor.state.selection;
   const beforeCursor = editor.state.doc.textBetween(
     Math.max(0, from - 10000),
@@ -323,66 +329,103 @@ function getPreviousWordRange(editor: NonNullable<ReturnType<typeof useEditor>>)
   };
 }
 
-function handleMacOSShortcut(
-  editor: NonNullable<ReturnType<typeof useEditor>>,
-  event: KeyboardEvent,
-) {
+function deletePreviousWord(editor: Editor) {
   const selection = editor.state.selection;
   const hasSelection = selection.from !== selection.to;
 
+  const range = hasSelection
+    ? { from: selection.from, to: selection.to }
+    : getPreviousWordRange(editor);
+  if (range) {
+    editor.chain().focus().deleteRange(range).run();
+  }
+  return true;
+}
+
+function deleteToLineStart(editor: Editor) {
+  const selection = editor.state.selection;
+  const hasSelection = selection.from !== selection.to;
+  const lineRange = getLineRange(editor);
+  const range = hasSelection
+    ? { from: selection.from, to: selection.to }
+    : { from: lineRange.from, to: selection.from };
+  if (range.from !== range.to) {
+    editor.chain().focus().deleteRange(range).run();
+  }
+  return true;
+}
+
+function deleteToLineEnd(editor: Editor) {
+  const selection = editor.state.selection;
+  const hasSelection = selection.from !== selection.to;
+  const lineRange = getLineRange(editor);
+  const to =
+    !hasSelection && selection.from === lineRange.to
+      ? Math.min(editor.state.doc.content.size, lineRange.to + 1)
+      : lineRange.to;
+  const range = hasSelection
+    ? { from: selection.from, to: selection.to }
+    : { from: selection.from, to };
+  if (range.from !== range.to) {
+    editor.chain().focus().deleteRange(range).run();
+  }
+  return true;
+}
+
+function moveToLineStart(editor: Editor) {
+  editor.chain().focus().setTextSelection(getLineRange(editor).from).run();
+  return true;
+}
+
+function moveToLineEnd(editor: Editor) {
+  editor.chain().focus().setTextSelection(getLineRange(editor).to).run();
+  return true;
+}
+
+function handleMacOSShortcut(editor: Editor, event: KeyboardEvent) {
   if (event.altKey && event.key === "Backspace") {
     event.preventDefault();
-    const range = hasSelection
-      ? { from: selection.from, to: selection.to }
-      : getPreviousWordRange(editor);
-    if (range) {
-      editor.chain().focus().deleteRange(range).run();
-    }
-    return true;
+    return deletePreviousWord(editor);
   }
 
   if (event.metaKey && event.key === "Backspace") {
     event.preventDefault();
-    const lineRange = getLineRange(editor);
-    const range = hasSelection
-      ? { from: selection.from, to: selection.to }
-      : { from: lineRange.from, to: selection.from };
-    if (range.from !== range.to) {
-      editor.chain().focus().deleteRange(range).run();
-    }
-    return true;
+    return deleteToLineStart(editor);
   }
 
   if (event.ctrlKey && event.key.toLowerCase() === "k") {
     event.preventDefault();
-    const lineRange = getLineRange(editor);
-    const to =
-      !hasSelection && selection.from === lineRange.to
-        ? Math.min(editor.state.doc.content.size, lineRange.to + 1)
-        : lineRange.to;
-    const range = hasSelection
-      ? { from: selection.from, to: selection.to }
-      : { from: selection.from, to };
-    if (range.from !== range.to) {
-      editor.chain().focus().deleteRange(range).run();
-    }
-    return true;
+    return deleteToLineEnd(editor);
   }
 
   if (event.metaKey && !event.shiftKey && event.key === "ArrowLeft") {
     event.preventDefault();
-    editor.chain().focus().setTextSelection(getLineRange(editor).from).run();
-    return true;
+    return moveToLineStart(editor);
   }
 
   if (event.metaKey && !event.shiftKey && event.key === "ArrowRight") {
     event.preventDefault();
-    editor.chain().focus().setTextSelection(getLineRange(editor).to).run();
-    return true;
+    return moveToLineEnd(editor);
   }
 
   return false;
 }
+
+const MessageInputMacOSShortcuts = Extension.create({
+  name: "messageInputMacOSShortcuts",
+  priority: 1000,
+
+  addKeyboardShortcuts() {
+    return {
+      "Alt-Backspace": () => deletePreviousWord(this.editor),
+      "Mod-Backspace": () => deleteToLineStart(this.editor),
+      "Ctrl-k": () => deleteToLineEnd(this.editor),
+      "Ctrl-K": () => deleteToLineEnd(this.editor),
+      "Mod-ArrowLeft": () => moveToLineStart(this.editor),
+      "Mod-ArrowRight": () => moveToLineEnd(this.editor),
+    };
+  },
+});
 
 function getEntityIcon(entity: MessageInputEntity): LucideIcon {
   if (entity.icon) return entity.icon;
@@ -637,6 +680,7 @@ export function MessageInput({
         orderedList: false,
       }),
       MessageInputMention,
+      MessageInputMacOSShortcuts,
       Placeholder.configure({ placeholder }),
     ],
     content: value ?? normalizeContent(defaultValue),

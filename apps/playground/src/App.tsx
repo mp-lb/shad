@@ -527,6 +527,11 @@ function InspectorContent() {
 }
 
 function InspectorScenario({ mode }: { mode: "floating" | "debugger" | "both" }) {
+  const [floatingOpen, setFloatingOpen] = React.useState(true)
+  const [debuggerOpen, setDebuggerOpen] = React.useState(true)
+  const showFloating = mode === "floating" || mode === "both"
+  const showDebugger = mode === "debugger" || mode === "both"
+
   return (
     <div className="relative min-h-[560px] overflow-hidden rounded-md border bg-muted/20">
       <div className="grid gap-2 p-4 font-mono text-xs text-muted-foreground">
@@ -536,19 +541,46 @@ function InspectorScenario({ mode }: { mode: "floating" | "debugger" | "both" })
         </div>
         <div>Use the icon controls to move, resize, dock, and minimize.</div>
         <div>Display state is written to localStorage per storage key.</div>
+        <div className="flex flex-wrap gap-1.5 pt-2">
+          {showFloating && !floatingOpen ? (
+            <Button
+              type="button"
+              size="xs"
+              variant="outline"
+              onClick={() => setFloatingOpen(true)}
+            >
+              Open floating
+            </Button>
+          ) : null}
+          {showDebugger && !debuggerOpen ? (
+            <Button
+              type="button"
+              size="xs"
+              variant="outline"
+              onClick={() => setDebuggerOpen(true)}
+            >
+              Open debugger
+            </Button>
+          ) : null}
+        </div>
       </div>
-      {mode === "floating" || mode === "both" ? (
+      {showFloating ? (
         <FloatingInspector
           title="Doctrine inspector"
           storageKey="mp-lb-playground-floating-inspector"
+          open={floatingOpen}
+          onOpenChange={setFloatingOpen}
         >
           <InspectorContent />
         </FloatingInspector>
       ) : null}
-      {mode === "debugger" || mode === "both" ? (
+      {showDebugger ? (
         <DockedDebugger
           title="Debugger"
           storageKey="mp-lb-playground-docked-debugger"
+          open={debuggerOpen}
+          onOpenChange={setDebuggerOpen}
+          closeDisabled={mode === "both"}
         >
           <InspectorContent />
         </DockedDebugger>

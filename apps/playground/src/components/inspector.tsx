@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import {
   ChevronDown,
@@ -9,7 +7,10 @@ import {
   Minimize2,
   PanelBottom,
   PanelRight,
-  Pin,
+  SquareArrowOutDownLeft,
+  SquareArrowOutDownRight,
+  SquareArrowOutUpLeft,
+  SquareArrowOutUpRight,
   X,
 } from "lucide-react"
 
@@ -37,6 +38,14 @@ export type DockedDebuggerState = {
   minimized: boolean
   side: DockedDebuggerSide
   size: DockedDebuggerSize
+}
+
+type InspectorOpenProps = {
+  closeDisabled?: boolean
+  onClose?: () => void
+  onOpenChange?: (open: boolean) => void
+  open?: boolean
+  showCloseButton?: boolean
 }
 
 export type InspectorTab = {
@@ -71,6 +80,33 @@ const floatingCornerClasses: Record<InspectorCorner, string> = {
   "top-left": "top-3 left-3",
   "top-right": "top-3 right-3",
 }
+
+const floatingCornerControls: Array<{
+  corner: InspectorCorner
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+}> = [
+  {
+    corner: "top-left",
+    icon: SquareArrowOutUpLeft,
+    label: "Move inspector to top left",
+  },
+  {
+    corner: "top-right",
+    icon: SquareArrowOutUpRight,
+    label: "Move inspector to top right",
+  },
+  {
+    corner: "bottom-left",
+    icon: SquareArrowOutDownLeft,
+    label: "Move inspector to bottom left",
+  },
+  {
+    corner: "bottom-right",
+    icon: SquareArrowOutDownRight,
+    label: "Move inspector to bottom right",
+  },
+]
 
 const floatingSizeClasses: Record<FloatingInspectorSize, string> = {
   large:
@@ -124,19 +160,6 @@ function useStoredInspectorState<TState extends object>(
   return [state, setState] as const
 }
 
-function nextCorner(corner: InspectorCorner): InspectorCorner {
-  switch (corner) {
-    case "bottom-right":
-      return "top-right"
-    case "top-right":
-      return "top-left"
-    case "top-left":
-      return "bottom-left"
-    case "bottom-left":
-      return "bottom-right"
-  }
-}
-
 function InspectorIconButton({
   className,
   ...props
@@ -145,7 +168,7 @@ function InspectorIconButton({
     <button
       type="button"
       className={cn(
-        "inline-flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring [&_svg]:size-3",
+        "inline-flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-35 [&_svg]:size-3",
         className
       )}
       {...props}
@@ -175,23 +198,39 @@ function InspectorHeader({
   )
 }
 
+function isInspectorOpen(open: boolean | undefined) {
+  return open ?? true
+}
+
 export function FloatingInspector({
   children,
   className,
+  closeDisabled = false,
   defaultState,
   onClose,
+  onOpenChange,
+  open,
+  showCloseButton = true,
   storageKey = "mp-lb-floating-inspector",
   title,
 }: Omit<React.ComponentProps<"section">, "title"> & {
   defaultState?: Partial<FloatingInspectorState>
-  onClose?: () => void
   storageKey?: string
   title: React.ReactNode
-}) {
+} & InspectorOpenProps) {
   const [state, setState] = useStoredInspectorState<FloatingInspectorState>(
     storageKey,
     { ...floatingDefaults, ...defaultState }
   )
+  const handleClose = React.useCallback(() => {
+    if (closeDisabled) return
+    onOpenChange?.(false)
+    onClose?.()
+  }, [closeDisabled, onClose, onOpenChange])
+
+  if (!isInspectorOpen(open)) {
+    return null
+  }
 
   if (state.minimized) {
     return (
@@ -224,17 +263,29 @@ export function FloatingInspector({
         title={title}
         actions={
           <>
-            <InspectorIconButton
-              aria-label="Move inspector"
-              onClick={() =>
-                setState((current) => ({
-                  ...current,
-                  corner: nextCorner(current.corner),
-                }))
-              }
-            >
-              <Pin />
-            </InspectorIconButton>
+            {floatingCornerControls.map((control) => {
+              const Icon = control.icon
+
+              return (
+                <InspectorIconButton
+                  key={control.corner}
+                  aria-label={control.label}
+                  aria-pressed={state.corner === control.corner}
+                  className={cn(
+                    state.corner === control.corner &&
+                      "bg-accent text-accent-foreground"
+                  )}
+                  onClick={() =>
+                    setState((current) => ({
+                      ...current,
+                      corner: control.corner,
+                    }))
+                  }
+                >
+                  <Icon />
+                </InspectorIconButton>
+              )
+            })}
             <InspectorIconButton
               aria-label={
                 state.size === "large"
@@ -258,8 +309,13 @@ export function FloatingInspector({
             >
               <ChevronDown />
             </InspectorIconButton>
-            {onClose ? (
-              <InspectorIconButton aria-label="Close inspector" onClick={onClose}>
+            {showCloseButton ? (
+              <InspectorIconButton
+                aria-label="Close inspector"
+                aria-disabled={closeDisabled}
+                disabled={closeDisabled}
+                onClick={handleClose}
+              >
                 <X />
               </InspectorIconButton>
             ) : null}
@@ -274,18 +330,32 @@ export function FloatingInspector({
 export function DockedDebugger({
   children,
   className,
+  closeDisabled = false,
   defaultState,
+  onClose,
+  onOpenChange,
+  open,
+  showCloseButton = true,
   storageKey = "mp-lb-docked-debugger",
   title,
 }: Omit<React.ComponentProps<"section">, "title"> & {
   defaultState?: Partial<DockedDebuggerState>
   storageKey?: string
   title: React.ReactNode
-}) {
+} & InspectorOpenProps) {
   const [state, setState] = useStoredInspectorState<DockedDebuggerState>(
     storageKey,
     { ...dockedDefaults, ...defaultState }
   )
+  const handleClose = React.useCallback(() => {
+    if (closeDisabled) return
+    onOpenChange?.(false)
+    onClose?.()
+  }, [closeDisabled, onClose, onOpenChange])
+
+  if (!isInspectorOpen(open)) {
+    return null
+  }
 
   if (state.minimized) {
     return (
@@ -360,6 +430,16 @@ export function DockedDebugger({
             >
               {state.side === "bottom" ? <ChevronDown /> : <ChevronRight />}
             </InspectorIconButton>
+            {showCloseButton ? (
+              <InspectorIconButton
+                aria-label="Close debugger"
+                aria-disabled={closeDisabled}
+                disabled={closeDisabled}
+                onClick={handleClose}
+              >
+                <X />
+              </InspectorIconButton>
+            ) : null}
           </>
         }
       />

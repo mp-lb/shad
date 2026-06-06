@@ -5,12 +5,14 @@ import {
   Columns3,
   Database,
   FileText,
+  FolderOpen,
   Gauge,
-  Mic,
+  Globe2,
+  Image,
   Moon,
   PanelLeft,
+  Plus,
   RotateCcw,
-  Search,
   Sparkles,
   Sun,
   Wand2,
@@ -56,6 +58,12 @@ import {
   SuccessState,
 } from "@/components/ui-states/ui-states"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
 type ComponentId =
@@ -321,11 +329,20 @@ function move<T>(items: T[], fromIndex: number, toIndex: number): T[] {
 function MessageInputScenario({ commands = true }: { commands?: boolean }) {
   const [payload, setPayload] =
     React.useState<MessageInputSubmitPayload | null>(null)
+  const [webSearchEnabled, setWebSearchEnabled] = React.useState(false)
+  const previewPayload = payload
+    ? { ...payload, webSearch: webSearchEnabled }
+    : {
+        text: "",
+        entities: [],
+        command: null,
+        webSearch: webSearchEnabled,
+      }
 
   return (
     <div className="flex min-h-[560px] flex-col justify-end gap-4">
       <MessageInput
-        composerClassName="border shadow-sm"
+        className="rounded-lg border shadow-sm"
         placeholder={
           commands
             ? "Ask Orb to summarize @Ada or use /rewrite..."
@@ -333,27 +350,24 @@ function MessageInputScenario({ commands = true }: { commands?: boolean }) {
         }
         entities={messageEntities}
         commands={commands ? messageCommands : []}
-        onAttachmentClick={() => undefined}
+        attachmentControl={<MessageAttachmentMenu />}
+        enableSpeechInput
         leadingActions={
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
-            className="rounded-full"
-            aria-label="Search context"
+            size="sm"
+            onClick={() => setWebSearchEnabled((current) => !current)}
+            aria-pressed={webSearchEnabled}
+            className={cn(
+              "h-8 rounded-full",
+              webSearchEnabled &&
+                "bg-blue-500/10 text-blue-700 hover:bg-blue-500/15 hover:text-blue-700 dark:bg-blue-400/15 dark:text-blue-300 dark:hover:bg-blue-400/20 dark:hover:text-blue-300",
+              !webSearchEnabled && "text-foreground hover:bg-muted hover:text-foreground"
+            )}
           >
-            <Search className="size-4" />
-          </Button>
-        }
-        trailingActions={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="rounded-full"
-            aria-label="Voice input"
-          >
-            <Mic className="size-4" />
+            <Globe2 className="size-4" />
+            Web search
           </Button>
         }
         onSearchEntities={(query) =>
@@ -379,14 +393,42 @@ function MessageInputScenario({ commands = true }: { commands?: boolean }) {
           Submit payload
         </div>
         <pre className="mt-2 overflow-auto text-xs">
-          {JSON.stringify(
-            payload ?? { text: "", entities: [], command: null },
-            null,
-            2
-          )}
+          {JSON.stringify(previewPayload, null, 2)}
         </pre>
       </div>
     </div>
+  )
+}
+
+function MessageAttachmentMenu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-8 rounded-full text-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Attach"
+        >
+          <Plus className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" className="w-max min-w-40">
+        <DropdownMenuItem>
+          <FileText className="size-4" />
+          Document
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Image className="size-4" />
+          Image
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <FolderOpen className="size-4" />
+          Workspace file
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

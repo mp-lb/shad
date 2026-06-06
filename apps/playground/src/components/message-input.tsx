@@ -11,9 +11,11 @@ import {
   FileText,
   Hash,
   Loader2,
+  Mic,
   Plus,
   Slash,
   Sparkles,
+  Square,
   User,
   X,
   type LucideIcon,
@@ -49,7 +51,7 @@ export type MessageInputSubmitPayload = {
 
 export type MessageInputProps = Omit<
   React.ComponentProps<"form">,
-  "onSubmit" | "onChange"
+  "className" | "onSubmit" | "onChange"
 > & {
   value?: JSONContent;
   defaultValue?: JSONContent | string;
@@ -69,14 +71,20 @@ export type MessageInputProps = Omit<
   onCommandSelect?: (command: MessageInputCommand | null) => void;
   onSubmit?: (payload: MessageInputSubmitPayload) => void;
   onAttachmentClick?: () => void;
+  attachmentControl?: React.ReactNode;
   leadingActions?: React.ReactNode;
   trailingActions?: React.ReactNode;
   suggestionsPlacement?: "auto" | "top" | "bottom";
+  className?: string;
+  rootClassName?: string;
   composerClassName?: string;
   editorClassName?: string;
   toolbarClassName?: string;
   submitLabel?: string;
   attachmentLabel?: string;
+  enableSpeechInput?: boolean;
+  speechInputLabel?: string;
+  speechRecognitionLang?: string;
   minHeight?: number;
 };
 
@@ -98,6 +106,28 @@ type Suggestion =
       kind: "command";
       item: MessageInputCommand;
     };
+
+type BrowserSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
+  abort: () => void;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionResultEvent = {
+  results: ArrayLike<{
+    0?: {
+      transcript?: string;
+    };
+  }>;
+};
+
+type SpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
 
 const defaultContent: JSONContent = {
   type: "doc",
@@ -186,6 +216,7 @@ function getTextFromContent(content: JSONContent): string {
   if (content.type === "messageInputMention") {
     return `@${String(content.attrs?.label ?? "")}`;
   }
+  if (content.type === "hardBreak") return "\n";
 
   return (content.content ?? []).map(getTextFromContent).join("");
 }
@@ -222,7 +253,7 @@ function getActiveTriggerFromEditor(editor: NonNullable<ReturnType<typeof useEdi
     Math.max(0, from - 80),
     from,
     "\n",
-    "\ufffc",
+    "\n",
   );
   const tokenMatch = /(^|[\s([{])([@/])([^\s@/]*)$/.exec(beforeCursor);
 
@@ -324,43 +355,29 @@ function SuggestionsList({
   id,
   isLoading,
   placement,
-  query,
   suggestions,
-  triggerKind,
   onSelect,
 }: {
   activeIndex: number;
   id: string;
   isLoading: boolean;
   placement: "top" | "bottom";
-  query: string;
   suggestions: Suggestion[];
-  triggerKind: TriggerKind;
   onSelect: (suggestion: Suggestion) => void;
 }) {
-  const title = triggerKind === "entity" ? "Mention" : "Command";
-
   return (
     <div
       id={id}
       role="listbox"
       className={cn(
-        "absolute right-0 left-0 z-20 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg",
+        "absolute left-0 z-20 w-max min-w-64 max-w-full overflow-hidden rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg",
         placement === "top" ? "bottom-full mb-2" : "top-full mt-2",
       )}
     >
-      <div className="flex items-center justify-between border-b px-3 py-2">
-        <div className="text-xs font-medium text-muted-foreground">
-          {title}
-          {query ? <span className="font-normal"> matching "{query}"</span> : null}
-        </div>
-        {isLoading ? (
-          <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-        ) : null}
-      </div>
-      <div className="max-h-72 overflow-y-auto p-1">
+      <div className="max-h-72 overflow-y-auto">
         {suggestions.length === 0 ? (
-          <div className="grid place-items-center px-3 py-8 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 px-3 py-8 text-sm text-muted-foreground">
+            {isLoading ? <Loader2 className="size-3.5 animate-spin" /> : null}
             {isLoading ? "Searching..." : "No results"}
           </div>
         ) : (
@@ -410,11 +427,13 @@ function SuggestionsList({
 
 export function MessageInput({
   attachmentLabel = "Attach",
+  attachmentControl,
   className,
   commands = [],
   composerClassName,
   defaultValue,
   disabled = false,
+  enableSpeechInput = false,
   editorClassName,
   entities = [],
   isSubmitting = false,
@@ -428,6 +447,9 @@ export function MessageInput({
   onSubmit,
   onValueChange,
   placeholder = "Ask anything...",
+  rootClassName,
+  speechInputLabel = "Voice input",
+  speechRecognitionLang,
   suggestionsPlacement = "auto",
   submitLabel = "Send",
   toolbarClassName,
@@ -446,16 +468,22 @@ export function MessageInput({
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const [isSearching, setIsSearching] = React.useState(false);
+  const [isListening, setIsListening] = React.useState(false);
+  const [speechRecognitionSupported, setSpeechRecognitionSupported] =
+    React.useState(false);
   const [selectedCommand, setSelectedCommand] =
     React.useState<MessageInputCommand | null>(null);
   const [resolvedSuggestionsPlacement, setResolvedSuggestionsPlacement] =
     React.useState<"top" | "bottom">("top");
   const selectSuggestionRef = React.useRef<((suggestion: Suggestion) => void) | null>(null);
   const submitRef = React.useRef<(() => void) | null>(null);
+  const speechRecognitionRef = React.useRef<BrowserSpeechRecognition | null>(null);
+  const wantsSpeechInputRef = React.useRef(false);
   const [editorState, setEditorState] = React.useState(() => ({
     content: normalizeContent(defaultValue),
     text: typeof defaultValue === "string" ? defaultValue : "",
   }));
+  const hasCommandSuggestions = commands.length > 0 || Boolean(onSearchCommands);
 
   const updateSuggestionsPlacement = React.useCallback(() => {
     if (suggestionsPlacement !== "auto") {
@@ -473,6 +501,18 @@ export function MessageInput({
     );
   }, [suggestionsPlacement]);
 
+  const getActiveTrigger = React.useCallback(
+    (editor: NonNullable<ReturnType<typeof useEditor>>) => {
+      const trigger = getActiveTriggerFromEditor(editor);
+      if (trigger?.kind === "command" && !hasCommandSuggestions) {
+        return null;
+      }
+
+      return trigger;
+    },
+    [hasCommandSuggestions],
+  );
+
   const editor = useEditor({
     immediatelyRender: false,
     editable: !disabled,
@@ -484,7 +524,6 @@ export function MessageInput({
         codeBlock: false,
         dropcursor: false,
         gapcursor: false,
-        hardBreak: false,
         heading: false,
         horizontalRule: false,
         listItem: false,
@@ -555,14 +594,14 @@ export function MessageInput({
       setEditorState({ content, text });
       onValueChange?.(content, text);
 
-      const nextTrigger = getActiveTriggerFromEditor(editor);
+      const nextTrigger = getActiveTrigger(editor);
       if (nextTrigger) {
         updateSuggestionsPlacement();
       }
       setActiveTrigger(nextTrigger);
     },
     onSelectionUpdate: ({ editor }) => {
-      const nextTrigger = getActiveTriggerFromEditor(editor);
+      const nextTrigger = getActiveTrigger(editor);
       if (nextTrigger) {
         updateSuggestionsPlacement();
       }
@@ -588,6 +627,28 @@ export function MessageInput({
   React.useEffect(() => {
     editor?.setEditable(!disabled);
   }, [disabled, editor]);
+
+  React.useEffect(() => {
+    if (!enableSpeechInput) {
+      setSpeechRecognitionSupported(false);
+      return;
+    }
+
+    const speechWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+
+    setSpeechRecognitionSupported(
+      Boolean(speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition),
+    );
+
+    return () => {
+      wantsSpeechInputRef.current = false;
+      speechRecognitionRef.current?.abort();
+      speechRecognitionRef.current = null;
+    };
+  }, [enableSpeechInput]);
 
   React.useEffect(() => {
     if (!editor || value === undefined) return;
@@ -708,6 +769,82 @@ export function MessageInput({
     });
   }, [canSubmit, editor, entities, onSubmit, selectedCommand]);
 
+  const toggleSpeechInput = React.useCallback(() => {
+    if (!editor || !speechRecognitionSupported) return;
+
+    if (isListening) {
+      wantsSpeechInputRef.current = false;
+      speechRecognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const speechWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    const SpeechRecognition =
+      speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setSpeechRecognitionSupported(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = speechRecognitionLang ?? navigator.language;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+
+      if (!transcript) return;
+
+      const needsSpace = editorState.text.trim().length > 0;
+      editor
+        .chain()
+        .focus()
+        .insertContent(`${needsSpace ? " " : ""}${transcript}`)
+        .run();
+    };
+    recognition.onerror = () => {
+      wantsSpeechInputRef.current = false;
+      setIsListening(false);
+    };
+    recognition.onend = () => {
+      if (!wantsSpeechInputRef.current) {
+        setIsListening(false);
+        return;
+      }
+
+      try {
+        recognition.start();
+      } catch {
+        wantsSpeechInputRef.current = false;
+        setIsListening(false);
+      }
+    };
+    speechRecognitionRef.current = recognition;
+    wantsSpeechInputRef.current = true;
+    setIsListening(true);
+
+    try {
+      recognition.start();
+    } catch {
+      wantsSpeechInputRef.current = false;
+      setIsListening(false);
+    }
+  }, [
+    editor,
+    editorState.text,
+    isListening,
+    speechRecognitionLang,
+    speechRecognitionSupported,
+  ]);
+
   React.useEffect(() => {
     selectSuggestionRef.current = selectSuggestion;
     submitRef.current = submit;
@@ -717,7 +854,7 @@ export function MessageInput({
     <form
       ref={formRef}
       data-slot="message-input"
-      className={cn("relative", className)}
+      className={cn("relative", rootClassName)}
       onSubmit={(event) => {
         event.preventDefault();
         submit();
@@ -730,18 +867,17 @@ export function MessageInput({
           id={listId}
           isLoading={isSearching}
           placement={resolvedSuggestionsPlacement}
-          query={activeTrigger?.query ?? ""}
           suggestions={suggestions}
-          triggerKind={activeTrigger?.kind ?? "entity"}
           onSelect={selectSuggestion}
         />
       ) : null}
 
       <div
         className={cn(
-          "rounded-lg bg-background transition-colors",
+          "bg-background transition-colors",
           "focus-within:ring-3 focus-within:ring-ring/20",
           disabled && "opacity-60",
+          className,
           composerClassName,
         )}
       >
@@ -774,24 +910,47 @@ export function MessageInput({
           )}
         >
           <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-            {onAttachmentClick ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={onAttachmentClick}
-                disabled={disabled}
-                aria-label={attachmentLabel}
-                className="rounded-full"
-              >
-                <Plus className="size-4" />
-              </Button>
-            ) : null}
+            {attachmentControl ??
+              (onAttachmentClick ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={onAttachmentClick}
+                  disabled={disabled}
+                  aria-label={attachmentLabel}
+                  className="size-8 rounded-full"
+                >
+                  <Plus className="size-4" />
+                </Button>
+              ) : null)}
             {leadingActions}
           </div>
 
           <div className="flex items-center gap-2">
             {trailingActions}
+            {enableSpeechInput && speechRecognitionSupported ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={toggleSpeechInput}
+                disabled={disabled}
+                aria-label={speechInputLabel}
+                aria-pressed={isListening}
+                className={cn(
+                  "size-8 rounded-full",
+                  isListening &&
+                    "bg-muted text-foreground hover:bg-muted",
+                )}
+              >
+                {isListening ? (
+                  <Square className="size-3 fill-current" />
+                ) : (
+                  <Mic className="size-4" />
+                )}
+              </Button>
+            ) : null}
             <Button
               type="submit"
               size="icon"

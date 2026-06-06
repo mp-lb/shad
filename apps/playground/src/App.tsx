@@ -22,8 +22,13 @@ import {
 } from "@/components/array-editor"
 import {
   DebuggerDock,
-  DebuggerPanel,
+  DebuggerMetrics,
+  DebuggerNotice,
+  DebuggerTable,
+  DebuggerViewport,
   type DebuggerColumn,
+  type DebuggerDockSide,
+  type DebuggerDockSize,
 } from "@/components/debugger"
 import { JsonViewer } from "@/components/json-viewer"
 import {
@@ -646,42 +651,71 @@ function InspectorScenario({ mode }: { mode: "floating" | "debugger" | "both" })
   )
 }
 
-function DebuggerScenario({ docked }: { docked: boolean }) {
+function DebuggerScenario() {
+  const [activeTab, setActiveTab] = React.useState("chunks")
   const [error, setError] = React.useState<React.ReactNode>(null)
   const [open, setOpen] = React.useState(true)
-  const panelProps = {
-    title: "IndexedDB chunks",
-    rows: debuggerRows,
-    columns: debuggerColumns,
-    getRowId: (row: DebuggerChunkRow) => `${row.streamId}:${row.sequence}`,
-    error,
-    metrics: [
-      { label: "Streams", value: 2 },
-      { label: "Chunks", value: debuggerRows.length },
-      { label: "Pending", value: 1 },
-      { label: "Bytes", value: 65392 },
-    ],
-    actions: [
-      {
-        icon: RotateCcw,
-        label: "Refresh",
-        onClick: () => setError(null),
-      },
-      {
-        icon: Database,
-        label: "Clear",
-        tone: "danger" as const,
-        onClick: () => setError("Clear action is disabled in the playground."),
-      },
-    ],
-  }
+  const [side, setSide] = React.useState<DebuggerDockSide>("bottom")
+  const [size, setSize] = React.useState<DebuggerDockSize>("compact")
 
-  if (docked) {
-    return (
-      <div className="relative min-h-[560px] overflow-hidden rounded-md border bg-muted/20">
-        <div className="grid gap-2 p-4 font-mono text-xs text-muted-foreground">
-          <div className="text-foreground">Debugger dock canvas</div>
-          <div>The panel is the debugger; the dock is the Chrome-style shell.</div>
+  return (
+    <DebuggerViewport
+      className="h-[560px] rounded-md border bg-muted/20"
+      debuggerOpen={open}
+      side={side}
+      debugger={
+        <DebuggerDock
+          title="Runtime debugger"
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          open={open}
+          onOpenChange={setOpen}
+          side={side}
+          onSideChange={setSide}
+          size={size}
+          onSizeChange={setSize}
+          tabs={[
+            { id: "chunks", label: "Chunks", count: debuggerRows.length },
+            { id: "events", label: "Events", count: 8 },
+          ]}
+          actions={[
+            {
+              id: "refresh",
+              icon: RotateCcw,
+              label: "Refresh",
+              onClick: () => setError(null),
+            },
+            {
+              id: "clear",
+              icon: Database,
+              label: "Clear",
+              tone: "danger",
+              onClick: () =>
+                setError("Clear action is disabled in the playground."),
+            },
+          ]}
+        >
+          <DebuggerMetrics
+            metrics={[
+              { label: "Streams", value: 2 },
+              { label: "Chunks", value: debuggerRows.length },
+              { label: "Pending", value: 1 },
+              { label: "Bytes", value: 65392 },
+            ]}
+          />
+          {error ? <DebuggerNotice>{error}</DebuggerNotice> : null}
+          <DebuggerTable
+            rows={debuggerRows}
+            columns={debuggerColumns}
+            getRowId={(row) => `${row.streamId}:${row.sequence}`}
+          />
+        </DebuggerDock>
+      }
+    >
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="grid gap-2 border-b p-4 font-mono text-xs text-muted-foreground">
+          <div className="text-foreground">Fake app viewport</div>
+          <div>The debugger is in layout, so this scroll area is resized.</div>
           {!open ? (
             <Button
               type="button"
@@ -693,18 +727,17 @@ function DebuggerScenario({ docked }: { docked: boolean }) {
             </Button>
           ) : null}
         </div>
-        <DebuggerDock
-          {...panelProps}
-          dockTitle="Runtime debugger"
-          storageKey="mp-lb-playground-debugger-dock"
-          open={open}
-          onOpenChange={setOpen}
-        />
+        <div className="min-h-0 flex-1 overflow-auto p-4 text-sm leading-6 text-muted-foreground">
+          {Array.from({ length: 28 }, (_, index) => (
+            <p key={index}>
+              Application content row {index + 1}. The page itself does not
+              scroll here; the child scroll area adapts to the debugger dock.
+            </p>
+          ))}
+        </div>
       </div>
-    )
-  }
-
-  return <DebuggerPanel {...panelProps} />
+    </DebuggerViewport>
+  )
 }
 
 const components: Record<ComponentId, ComponentGroup> = {
@@ -882,19 +915,13 @@ const components: Record<ComponentId, ComponentGroup> = {
   debugger: {
     id: "debugger",
     title: "Debugger",
-    description: "Dense runtime data panels for local development state.",
+    description: "Docked runtime panel that resizes the app viewport.",
     scenarios: [
       {
-        id: "panel",
-        title: "Panel",
-        description: "Metrics, actions, errors, empty states, and table rows.",
-        render: () => <DebuggerScenario docked={false} />,
-      },
-      {
-        id: "docked",
+        id: "docked-layout",
         title: "Docked",
-        description: "Chrome-devtools-style shell around the debugger panel.",
-        render: () => <DebuggerScenario docked />,
+        description: "Integrated toolbar, tabs, actions, and pushed layout.",
+        render: () => <DebuggerScenario />,
       },
     ],
   },

@@ -247,6 +247,20 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "inspector",
+      "type": "registry:component",
+      "title": "Inspector",
+      "description": "Compact floating inspector, docked debugger, mini tabs, metric grids, and list primitives for localhost development tools.",
+      "dependencies": ["lucide-react"],
+      "categories": ["dev-tools", "dashboard", "debugging"],
+      "files": [
+        {
+          "path": "registry/inspector/inspector.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

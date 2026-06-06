@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Columns3,
   FileText,
+  Gauge,
   Mic,
   Moon,
   PanelLeft,
@@ -19,6 +20,14 @@ import {
   type ArrayEditorObjectItem,
 } from "@/components/array-editor"
 import { JsonViewer } from "@/components/json-viewer"
+import {
+  DockedDebugger,
+  FloatingInspector,
+  InspectorList,
+  InspectorMetricGrid,
+  InspectorSection,
+  InspectorTabs,
+} from "@/components/inspector"
 import { MdKitLocalEditor } from "@/components/mdkit-editor"
 import {
   MessageInput,
@@ -46,6 +55,7 @@ type ComponentId =
   | "modal"
   | "ui-states"
   | "mdkit-editor"
+  | "inspector"
 
 type WidthMode = "fluid" | "narrow" | "wide"
 type ThemeMode = "light" | "dark"
@@ -72,6 +82,7 @@ const componentOrder: ComponentId[] = [
   "modal",
   "ui-states",
   "mdkit-editor",
+  "inspector",
 ]
 
 const complexPayload = {
@@ -187,6 +198,43 @@ const logEvents = Array.from({ length: 24 }, (_, index) => {
     },
   }
 })
+
+const inspectorTabs = [
+  { id: "state", label: "state", count: 4 },
+  { id: "events", label: "events", count: 12 },
+  { id: "network", label: "network", count: 3 },
+]
+
+const inspectorItems = [
+  {
+    id: "route",
+    label: "route.changed",
+    meta: "/stores/felixsebastian/fssstack",
+    tone: "info" as const,
+    value: "31ms",
+  },
+  {
+    id: "sync",
+    label: "sync.clean",
+    meta: "manifest matched remote bytes",
+    tone: "success" as const,
+    value: "ok",
+  },
+  {
+    id: "cache",
+    label: "cache.stale",
+    meta: "revalidated ambient query",
+    tone: "warning" as const,
+    value: "1.8s",
+  },
+  {
+    id: "write",
+    label: "write.blocked",
+    meta: "localhost inspector only",
+    tone: "danger" as const,
+    value: "dev",
+  },
+]
 
 const markdownSeed = `# Playground notes
 
@@ -453,6 +501,62 @@ function MdKitScenario({ fillHeight }: { fillHeight: boolean }) {
   )
 }
 
+function InspectorContent() {
+  const [activeTab, setActiveTab] = React.useState("state")
+
+  return (
+    <div className="grid gap-2">
+      <InspectorTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        tabs={inspectorTabs}
+      />
+      <InspectorMetricGrid
+        metrics={[
+          { label: "stores", value: 9 },
+          { label: "files", value: 128 },
+          { label: "dirty", value: 0 },
+          { label: "latency", value: "44ms" },
+        ]}
+      />
+      <InspectorSection title={activeTab}>
+        <InspectorList items={inspectorItems} />
+      </InspectorSection>
+    </div>
+  )
+}
+
+function InspectorScenario({ mode }: { mode: "floating" | "debugger" | "both" }) {
+  return (
+    <div className="relative min-h-[560px] overflow-hidden rounded-md border bg-muted/20">
+      <div className="grid gap-2 p-4 font-mono text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-foreground">
+          <Gauge className="size-4" />
+          Localhost development surface
+        </div>
+        <div>Use the icon controls to move, resize, dock, and minimize.</div>
+        <div>Display state is written to localStorage per storage key.</div>
+      </div>
+      {mode === "floating" || mode === "both" ? (
+        <FloatingInspector
+          title="Doctrine inspector"
+          storageKey="mp-lb-playground-floating-inspector"
+        >
+          <InspectorContent />
+        </FloatingInspector>
+      ) : null}
+      {mode === "debugger" || mode === "both" ? (
+        <DockedDebugger
+          title="Debugger"
+          storageKey="mp-lb-playground-docked-debugger"
+        >
+          <InspectorContent />
+        </DockedDebugger>
+      ) : null}
+    </div>
+  )
+}
+
 const components: Record<ComponentId, ComponentGroup> = {
   "message-input": {
     id: "message-input",
@@ -622,6 +726,31 @@ const components: Record<ComponentId, ComponentGroup> = {
         title: "Fill height",
         description: "Checks the editor inside a constrained tall area.",
         render: () => <MdKitScenario fillHeight />,
+      },
+    ],
+  },
+  inspector: {
+    id: "inspector",
+    title: "Inspector",
+    description: "Floating inspector, docked debugger, and compact dev-tool views.",
+    scenarios: [
+      {
+        id: "floating",
+        title: "Floating",
+        description: "Corner-pinned inspector with small/large and dot minimize.",
+        render: () => <InspectorScenario mode="floating" />,
+      },
+      {
+        id: "debugger",
+        title: "Debugger",
+        description: "Docked Chrome-devtools-style panel with shared styling.",
+        render: () => <InspectorScenario mode="debugger" />,
+      },
+      {
+        id: "both",
+        title: "Both",
+        description: "Floating and docked shells using the same compact views.",
+        render: () => <InspectorScenario mode="both" />,
       },
     ],
   },

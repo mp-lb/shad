@@ -277,6 +277,113 @@ function getActiveTriggerFromEditor(editor: NonNullable<ReturnType<typeof useEdi
   };
 }
 
+function getLineRange(editor: NonNullable<ReturnType<typeof useEditor>>) {
+  const { from } = editor.state.selection;
+  const docStart = Math.max(0, from - 10000);
+  const beforeCursor = editor.state.doc.textBetween(docStart, from, "\n", "\n");
+  const afterCursor = editor.state.doc.textBetween(
+    from,
+    editor.state.doc.content.size,
+    "\n",
+    "\n",
+  );
+  const previousBreakIndex = beforeCursor.lastIndexOf("\n");
+  const nextBreakIndex = afterCursor.indexOf("\n");
+
+  return {
+    from:
+      previousBreakIndex === -1
+        ? from - beforeCursor.length
+        : from - (beforeCursor.length - previousBreakIndex - 1),
+    to: nextBreakIndex === -1 ? from + afterCursor.length : from + nextBreakIndex,
+  };
+}
+
+function getPreviousWordRange(editor: NonNullable<ReturnType<typeof useEditor>>) {
+  const { from } = editor.state.selection;
+  const beforeCursor = editor.state.doc.textBetween(
+    Math.max(0, from - 10000),
+    from,
+    "\n",
+    "\n",
+  );
+  const trailingWhitespaceLength = beforeCursor.match(/\s+$/)?.[0].length ?? 0;
+  const withoutTrailingWhitespace = beforeCursor.slice(
+    0,
+    beforeCursor.length - trailingWhitespaceLength,
+  );
+  const previousWordLength = withoutTrailingWhitespace.match(/\S+$/)?.[0].length ?? 0;
+  const deleteLength = trailingWhitespaceLength + previousWordLength;
+
+  if (deleteLength === 0) return null;
+
+  return {
+    from: from - deleteLength,
+    to: from,
+  };
+}
+
+function handleMacOSShortcut(
+  editor: NonNullable<ReturnType<typeof useEditor>>,
+  event: KeyboardEvent,
+) {
+  const selection = editor.state.selection;
+  const hasSelection = selection.from !== selection.to;
+
+  if (event.altKey && event.key === "Backspace") {
+    event.preventDefault();
+    const range = hasSelection
+      ? { from: selection.from, to: selection.to }
+      : getPreviousWordRange(editor);
+    if (range) {
+      editor.chain().focus().deleteRange(range).run();
+    }
+    return true;
+  }
+
+  if (event.metaKey && event.key === "Backspace") {
+    event.preventDefault();
+    const lineRange = getLineRange(editor);
+    const range = hasSelection
+      ? { from: selection.from, to: selection.to }
+      : { from: lineRange.from, to: selection.from };
+    if (range.from !== range.to) {
+      editor.chain().focus().deleteRange(range).run();
+    }
+    return true;
+  }
+
+  if (event.ctrlKey && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    const lineRange = getLineRange(editor);
+    const to =
+      !hasSelection && selection.from === lineRange.to
+        ? Math.min(editor.state.doc.content.size, lineRange.to + 1)
+        : lineRange.to;
+    const range = hasSelection
+      ? { from: selection.from, to: selection.to }
+      : { from: selection.from, to };
+    if (range.from !== range.to) {
+      editor.chain().focus().deleteRange(range).run();
+    }
+    return true;
+  }
+
+  if (event.metaKey && !event.shiftKey && event.key === "ArrowLeft") {
+    event.preventDefault();
+    editor.chain().focus().setTextSelection(getLineRange(editor).from).run();
+    return true;
+  }
+
+  if (event.metaKey && !event.shiftKey && event.key === "ArrowRight") {
+    event.preventDefault();
+    editor.chain().focus().setTextSelection(getLineRange(editor).to).run();
+    return true;
+  }
+
+  return false;
+}
+
 function getEntityIcon(entity: MessageInputEntity): LucideIcon {
   if (entity.icon) return entity.icon;
   if (entity.type === "bot" || entity.type === "assistant") return Bot;
@@ -575,6 +682,10 @@ export function MessageInput({
             setActiveTrigger(null);
             return true;
           }
+        }
+
+        if (editor && handleMacOSShortcut(editor, event)) {
+          return true;
         }
 
         if (event.key === "Enter" && !event.shiftKey) {

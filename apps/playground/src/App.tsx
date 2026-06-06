@@ -3,6 +3,7 @@ import {
   Bot,
   CheckCircle2,
   Columns3,
+  Database,
   FileText,
   Gauge,
   Mic,
@@ -19,6 +20,11 @@ import {
   ArrayEditor,
   type ArrayEditorObjectItem,
 } from "@/components/array-editor"
+import {
+  DebuggerDock,
+  DebuggerPanel,
+  type DebuggerColumn,
+} from "@/components/debugger"
 import { JsonViewer } from "@/components/json-viewer"
 import {
   DockedDebugger,
@@ -56,6 +62,7 @@ type ComponentId =
   | "ui-states"
   | "mdkit-editor"
   | "inspector"
+  | "debugger"
 
 type WidthMode = "fluid" | "narrow" | "wide"
 type ThemeMode = "light" | "dark"
@@ -82,6 +89,7 @@ const componentOrder: ComponentId[] = [
   "modal",
   "ui-states",
   "mdkit-editor",
+  "debugger",
   "inspector",
 ]
 
@@ -234,6 +242,55 @@ const inspectorItems = [
     tone: "danger" as const,
     value: "dev",
   },
+]
+
+type DebuggerChunkRow = {
+  capturedAt: string
+  contentType: string
+  sequence: number
+  sizeBytes: number
+  status: "pending" | "uploaded"
+  streamId: string
+  uploadedAt?: string
+}
+
+const debuggerRows: DebuggerChunkRow[] = [
+  {
+    capturedAt: "09:14:22",
+    contentType: "audio/webm",
+    sequence: 1,
+    sizeBytes: 24832,
+    status: "uploaded",
+    streamId: "str_alpha",
+    uploadedAt: "09:14:31",
+  },
+  {
+    capturedAt: "09:14:25",
+    contentType: "audio/webm",
+    sequence: 2,
+    sizeBytes: 21918,
+    status: "uploaded",
+    streamId: "str_alpha",
+    uploadedAt: "09:14:34",
+  },
+  {
+    capturedAt: "09:16:08",
+    contentType: "audio/webm",
+    sequence: 1,
+    sizeBytes: 18642,
+    status: "pending",
+    streamId: "str_beta",
+  },
+]
+
+const debuggerColumns: DebuggerColumn<DebuggerChunkRow>[] = [
+  { header: "Stream", render: (row) => row.streamId },
+  { header: "Seq", className: "w-14", render: (row) => row.sequence },
+  { header: "Status", render: (row) => row.status },
+  { header: "Size", render: (row) => row.sizeBytes },
+  { header: "Type", render: (row) => row.contentType },
+  { header: "Captured", render: (row) => row.capturedAt },
+  { header: "Uploaded", render: (row) => row.uploadedAt ?? "-" },
 ]
 
 const markdownSeed = `# Playground notes
@@ -589,6 +646,67 @@ function InspectorScenario({ mode }: { mode: "floating" | "debugger" | "both" })
   )
 }
 
+function DebuggerScenario({ docked }: { docked: boolean }) {
+  const [error, setError] = React.useState<React.ReactNode>(null)
+  const [open, setOpen] = React.useState(true)
+  const panelProps = {
+    title: "IndexedDB chunks",
+    rows: debuggerRows,
+    columns: debuggerColumns,
+    getRowId: (row: DebuggerChunkRow) => `${row.streamId}:${row.sequence}`,
+    error,
+    metrics: [
+      { label: "Streams", value: 2 },
+      { label: "Chunks", value: debuggerRows.length },
+      { label: "Pending", value: 1 },
+      { label: "Bytes", value: 65392 },
+    ],
+    actions: [
+      {
+        icon: RotateCcw,
+        label: "Refresh",
+        onClick: () => setError(null),
+      },
+      {
+        icon: Database,
+        label: "Clear",
+        tone: "danger" as const,
+        onClick: () => setError("Clear action is disabled in the playground."),
+      },
+    ],
+  }
+
+  if (docked) {
+    return (
+      <div className="relative min-h-[560px] overflow-hidden rounded-md border bg-muted/20">
+        <div className="grid gap-2 p-4 font-mono text-xs text-muted-foreground">
+          <div className="text-foreground">Debugger dock canvas</div>
+          <div>The panel is the debugger; the dock is the Chrome-style shell.</div>
+          {!open ? (
+            <Button
+              type="button"
+              size="xs"
+              variant="outline"
+              onClick={() => setOpen(true)}
+            >
+              Open debugger
+            </Button>
+          ) : null}
+        </div>
+        <DebuggerDock
+          {...panelProps}
+          dockTitle="Runtime debugger"
+          storageKey="mp-lb-playground-debugger-dock"
+          open={open}
+          onOpenChange={setOpen}
+        />
+      </div>
+    )
+  }
+
+  return <DebuggerPanel {...panelProps} />
+}
+
 const components: Record<ComponentId, ComponentGroup> = {
   "message-input": {
     id: "message-input",
@@ -758,6 +876,25 @@ const components: Record<ComponentId, ComponentGroup> = {
         title: "Fill height",
         description: "Checks the editor inside a constrained tall area.",
         render: () => <MdKitScenario fillHeight />,
+      },
+    ],
+  },
+  debugger: {
+    id: "debugger",
+    title: "Debugger",
+    description: "Dense runtime data panels for local development state.",
+    scenarios: [
+      {
+        id: "panel",
+        title: "Panel",
+        description: "Metrics, actions, errors, empty states, and table rows.",
+        render: () => <DebuggerScenario docked={false} />,
+      },
+      {
+        id: "docked",
+        title: "Docked",
+        description: "Chrome-devtools-style shell around the debugger panel.",
+        render: () => <DebuggerScenario docked />,
       },
     ],
   },

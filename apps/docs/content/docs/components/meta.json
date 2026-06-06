@@ -6,6 +6,7 @@
     "array-editor",
     "modal",
     "ui-states",
+    "debugger",
     "inspector",
     "json-viewer",
     "structured-log-viewer"

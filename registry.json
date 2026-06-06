@@ -261,6 +261,25 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "debugger",
+      "type": "registry:component",
+      "title": "Debugger",
+      "description": "Compact runtime data panel and optional docked debugger wrapper for local development state.",
+      "dependencies": ["lucide-react"],
+      "categories": ["dev-tools", "dashboard", "debugging"],
+      "files": [
+        {
+          "path": "registry/inspector/inspector.tsx",
+          "type": "registry:component",
+          "target": "@components/inspector.tsx"
+        },
+        {
+          "path": "registry/debugger/debugger.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

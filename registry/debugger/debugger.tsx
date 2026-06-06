@@ -248,39 +248,49 @@ export function DebuggerDock({
           {actions.map((action) => (
             <DebuggerActionButton key={action.id} action={action} />
           ))}
-          <DebuggerIconButton
-            aria-label={
-              side === "bottom" ? "Dock debugger right" : "Dock debugger bottom"
-            }
-            onClick={() => onSideChange?.(side === "bottom" ? "right" : "bottom")}
-          >
-            {side === "bottom" ? <PanelRight /> : <PanelBottom />}
-          </DebuggerIconButton>
-          <DebuggerIconButton
-            aria-label={
-              size === "expanded"
-                ? "Use compact debugger"
-                : "Use expanded debugger"
-            }
-            onClick={() =>
-              onSizeChange?.(size === "expanded" ? "compact" : "expanded")
-            }
-          >
-            {size === "expanded" ? <Minimize2 /> : <Maximize2 />}
-          </DebuggerIconButton>
-          <DebuggerIconButton
-            aria-label="Minimize debugger"
-            onClick={() => onOpenChange?.(false)}
-          >
-            {side === "bottom" ? <ChevronDown /> : <ChevronRight />}
-          </DebuggerIconButton>
-          <DebuggerIconButton
-            aria-label="Close debugger"
-            disabled={closeDisabled}
-            onClick={() => onOpenChange?.(false)}
-          >
-            <X />
-          </DebuggerIconButton>
+          {onSideChange ? (
+            <DebuggerIconButton
+              aria-label={
+                side === "bottom" ? "Dock debugger right" : "Dock debugger bottom"
+              }
+              onClick={() =>
+                onSideChange(side === "bottom" ? "right" : "bottom")
+              }
+            >
+              {side === "bottom" ? <PanelRight /> : <PanelBottom />}
+            </DebuggerIconButton>
+          ) : null}
+          {onSizeChange ? (
+            <DebuggerIconButton
+              aria-label={
+                size === "expanded"
+                  ? "Use compact debugger"
+                  : "Use expanded debugger"
+              }
+              onClick={() =>
+                onSizeChange(size === "expanded" ? "compact" : "expanded")
+              }
+            >
+              {size === "expanded" ? <Minimize2 /> : <Maximize2 />}
+            </DebuggerIconButton>
+          ) : null}
+          {onOpenChange ? (
+            <>
+              <DebuggerIconButton
+                aria-label="Minimize debugger"
+                onClick={() => onOpenChange(false)}
+              >
+                {side === "bottom" ? <ChevronDown /> : <ChevronRight />}
+              </DebuggerIconButton>
+              <DebuggerIconButton
+                aria-label="Close debugger"
+                disabled={closeDisabled}
+                onClick={() => onOpenChange(false)}
+              >
+                <X />
+              </DebuggerIconButton>
+            </>
+          ) : null}
         </div>
       </header>
       <div data-slot="debugger-body" className="min-h-0 overflow-auto">

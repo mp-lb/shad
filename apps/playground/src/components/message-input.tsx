@@ -140,6 +140,8 @@ const defaultContent: JSONContent = {
   content: [{ type: "paragraph" }],
 };
 
+const inlineAtomText = "\uFFFC";
+
 const MessageInputMention = Node.create({
   name: "messageInputMention",
   group: "inline",
@@ -286,12 +288,18 @@ function getActiveTriggerFromEditor(editor: NonNullable<ReturnType<typeof useEdi
 function getLineRange(editor: Editor) {
   const { from } = editor.state.selection;
   const docStart = Math.max(0, from - 10000);
-  const beforeCursor = editor.state.doc.textBetween(docStart, from, "\n", "\n");
+
+  const beforeCursor = editor.state.doc.textBetween(
+    docStart,
+    from,
+    "\n",
+    inlineAtomText,
+  );
   const afterCursor = editor.state.doc.textBetween(
     from,
     editor.state.doc.content.size,
     "\n",
-    "\n",
+    inlineAtomText,
   );
   const previousBreakIndex = beforeCursor.lastIndexOf("\n");
   const nextBreakIndex = afterCursor.indexOf("\n");
@@ -311,7 +319,7 @@ function getPreviousWordRange(editor: Editor) {
     Math.max(0, from - 10000),
     from,
     "\n",
-    "\n",
+    inlineAtomText,
   );
   const trailingWhitespaceLength = beforeCursor.match(/\s+$/)?.[0].length ?? 0;
   const withoutTrailingWhitespace = beforeCursor.slice(

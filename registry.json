@@ -93,6 +93,19 @@
       ]
     },
     {
+      "name": "avatar-stack",
+      "type": "registry:component",
+      "title": "Avatar Stack",
+      "description": "Overlapping avatar row with size presets, CSS-variable sizing, an overflow count, and bring-your-own circle content.",
+      "categories": ["display", "users", "dashboard"],
+      "files": [
+        {
+          "path": "registry/avatar-stack/avatar-stack.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "ui-states",
       "type": "registry:component",
       "title": "UI States",

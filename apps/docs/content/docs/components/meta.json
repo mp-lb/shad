@@ -5,6 +5,7 @@
     "mdkit-editor",
     "array-editor",
     "modal",
+    "avatar-stack",
     "ui-states",
     "debugger",
     "inspector",

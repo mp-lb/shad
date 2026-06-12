@@ -22,6 +22,7 @@ import {
   ArrayEditor,
   type ArrayEditorObjectItem,
 } from "@/components/array-editor"
+import { AvatarStack, AvatarStackItem } from "@/components/avatar-stack"
 import {
   DebuggerDock,
   DebuggerMetrics,
@@ -72,6 +73,7 @@ type ComponentId =
   | "array-editor"
   | "structured-log-viewer"
   | "modal"
+  | "avatar-stack"
   | "ui-states"
   | "mdkit-editor"
   | "inspector"
@@ -100,6 +102,7 @@ const componentOrder: ComponentId[] = [
   "array-editor",
   "structured-log-viewer",
   "modal",
+  "avatar-stack",
   "ui-states",
   "mdkit-editor",
   "debugger",
@@ -548,6 +551,91 @@ function ModalScenario({ mode }: { mode: "standard" | "fullscreen" | "alert" }) 
   )
 }
 
+const stackPeople = [
+  "Ada Lovelace",
+  "Grace Hopper",
+  "Alan Turing",
+  "Katherine Johnson",
+  "Edsger Dijkstra",
+  "Barbara Liskov",
+  "Donald Knuth",
+]
+
+function getStackInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("")
+}
+
+function getStackColorStyle(value: string) {
+  const hash = [...value].reduce(
+    (currentHash, character) =>
+      character.charCodeAt(0) + ((currentHash << 5) - currentHash),
+    0
+  )
+
+  return { backgroundColor: `hsl(${Math.abs(hash) % 360} 58% 42%)` }
+}
+
+function StackInitialsItem({ name }: { name: string }) {
+  return (
+    <AvatarStackItem
+      aria-label={name}
+      className="font-semibold text-white"
+      style={getStackColorStyle(name)}
+    >
+      {getStackInitials(name)}
+    </AvatarStackItem>
+  )
+}
+
+function AvatarStackScenario({ mode }: { mode: "presets" | "overflow" }) {
+  if (mode === "overflow") {
+    return (
+      <div className="flex flex-wrap items-center gap-6">
+        {[3, 4, 5].map((max) => (
+          <AvatarStack key={max} max={max} size="md">
+            {stackPeople.map((name) => (
+              <StackInitialsItem key={name} name={name} />
+            ))}
+          </AvatarStack>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-6">
+      <div className="flex flex-wrap items-center gap-6">
+        {(["xs", "sm", "md", "lg", "xl"] as const).map((size) => (
+          <AvatarStack key={size} size={size}>
+            {stackPeople.slice(0, 3).map((name) => (
+              <StackInitialsItem key={name} name={name} />
+            ))}
+          </AvatarStack>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-6">
+        {(["none", "sm", "md", "lg"] as const).map((overlap) => (
+          <AvatarStack key={overlap} overlap={overlap} size="md">
+            {stackPeople.slice(0, 3).map((name) => (
+              <StackInitialsItem key={name} name={name} />
+            ))}
+          </AvatarStack>
+        ))}
+      </div>
+      <AvatarStack className="[--avatar-stack-overlap:0.875rem] [--avatar-stack-size:3.5rem] text-lg">
+        {stackPeople.slice(0, 4).map((name) => (
+          <StackInitialsItem key={name} name={name} />
+        ))}
+      </AvatarStack>
+    </div>
+  )
+}
+
 function UiStatesScenario({ mode }: { mode: "all" | "inline" | "loading" }) {
   if (mode === "loading") {
     return <LoadingState label="Loading registry scenario" size="lg" />
@@ -907,6 +995,25 @@ const components: Record<ComponentId, ComponentGroup> = {
         title: "Alert",
         description: "Small destructive confirmation case.",
         render: () => <ModalScenario mode="alert" />,
+      },
+    ],
+  },
+  "avatar-stack": {
+    id: "avatar-stack",
+    title: "Avatar Stack",
+    description: "Overlapping avatar circles with presets and overflow count.",
+    scenarios: [
+      {
+        id: "presets",
+        title: "Presets",
+        description: "Size and overlap presets plus CSS-variable sizing.",
+        render: () => <AvatarStackScenario mode="presets" />,
+      },
+      {
+        id: "overflow",
+        title: "Overflow count",
+        description: "The max prop collapses extra items into a +N circle.",
+        render: () => <AvatarStackScenario mode="overflow" />,
       },
     ],
   },

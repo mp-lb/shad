@@ -16,6 +16,7 @@ type AvatarStackProps = React.ComponentProps<"div"> & {
   max?: number;
   overlap?: AvatarStackOverlap;
   size?: AvatarStackSize;
+  total?: number;
 };
 
 // Presets only set the CSS variables (plus a matching text size); pass
@@ -42,11 +43,16 @@ export function AvatarStack({
   max,
   overlap = "md",
   size = "md",
+  total,
   ...props
 }: AvatarStackProps) {
   const items = React.Children.toArray(children);
   const visibleItems = max !== undefined ? items.slice(0, max) : items;
-  const hiddenCount = items.length - visibleItems.length;
+
+  const hiddenCount = Math.max(
+    0,
+    (total ?? items.length) - visibleItems.length,
+  );
 
   return (
     <TooltipProvider>

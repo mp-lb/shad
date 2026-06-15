@@ -41,6 +41,7 @@ function InitialsItem({ name }: { name: string }) {
       aria-label={name}
       className="font-semibold text-white"
       style={getColorStyle(name)}
+      tooltip={name}
     >
       {getInitials(name)}
     </AvatarStackItem>
@@ -70,7 +71,7 @@ export function AvatarStackDemo() {
       <DemoRow label="Images">
         <AvatarStack size="lg">
           {[12, 32, 5, 47].map((seed, index) => (
-            <AvatarStackItem key={seed}>
+            <AvatarStackItem key={seed} tooltip={people[index]}>
               <img
                 alt={people[index]}
                 src={`https://i.pravatar.cc/96?img=${seed}`}

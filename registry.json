@@ -97,6 +97,7 @@
       "type": "registry:component",
       "title": "Avatar Stack",
       "description": "Overlapping avatar row with size presets, CSS-variable sizing, an overflow count, and bring-your-own circle content.",
+      "registryDependencies": ["tooltip"],
       "categories": ["display", "users", "dashboard"],
       "files": [
         {

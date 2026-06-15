@@ -1,6 +1,12 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type AvatarStackSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -43,29 +49,38 @@ export function AvatarStack({
   const hiddenCount = items.length - visibleItems.length;
 
   return (
-    <div
-      data-slot="avatar-stack"
-      className={cn(
-        "flex -space-x-(--avatar-stack-overlap)",
-        sizeClasses[size],
-        overlapClasses[overlap],
-        className,
-      )}
-      {...props}
-    >
-      {visibleItems}
-      {hiddenCount > 0 ? (
-        <AvatarStackCount>+{hiddenCount}</AvatarStackCount>
-      ) : null}
-    </div>
+    <TooltipProvider>
+      <div
+        data-slot="avatar-stack"
+        className={cn(
+          "flex -space-x-(--avatar-stack-overlap)",
+          sizeClasses[size],
+          overlapClasses[overlap],
+          className,
+        )}
+        {...props}
+      >
+        {visibleItems}
+        {hiddenCount > 0 ? (
+          <AvatarStackCount tooltip={`${hiddenCount} more`}>
+            +{hiddenCount}
+          </AvatarStackCount>
+        ) : null}
+      </div>
+    </TooltipProvider>
   );
 }
 
+type AvatarStackItemProps = React.ComponentProps<"div"> & {
+  tooltip?: React.ReactNode;
+};
+
 export function AvatarStackItem({
   className,
+  tooltip,
   ...props
-}: React.ComponentProps<"div">) {
-  return (
+}: AvatarStackItemProps) {
+  const item = (
     <div
       data-slot="avatar-stack-item"
       className={cn(
@@ -77,13 +92,29 @@ export function AvatarStackItem({
       {...props}
     />
   );
+
+  if (!tooltip) {
+    return item;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{item}</TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
+  );
 }
+
+type AvatarStackCountProps = React.ComponentProps<"div"> & {
+  tooltip?: React.ReactNode;
+};
 
 export function AvatarStackCount({
   className,
+  tooltip,
   ...props
-}: React.ComponentProps<"div">) {
-  return (
+}: AvatarStackCountProps) {
+  const count = (
     <div
       data-slot="avatar-stack-count"
       className={cn(
@@ -92,5 +123,16 @@ export function AvatarStackCount({
       )}
       {...props}
     />
+  );
+
+  if (!tooltip) {
+    return count;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{count}</TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
   );
 }

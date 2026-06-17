@@ -68,7 +68,9 @@ export function AvatarStack({
       >
         {visibleItems}
         {hiddenCount > 0 ? (
-          <AvatarStackCount tooltip={`${hiddenCount} more`}>
+          <AvatarStackCount
+            tooltip={`${hiddenCount} other member${hiddenCount === 1 ? "" : "s"}`}
+          >
             +{hiddenCount}
           </AvatarStackCount>
         ) : null}

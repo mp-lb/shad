@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from "node:fs"
+import { readFileSync, existsSync, statSync } from "node:fs"
 import { registerHooks } from "node:module"
 import { fileURLToPath } from "node:url"
 import ts from "typescript"
@@ -12,7 +12,7 @@ registerHooks({
     if (specifier.startsWith("file:") || specifier.startsWith(".")) {
       const url = new URL(specifier, context.parentURL)
       for (const extension of ["", ".tsx", ".ts"]) {
-        if (existsSync(fileURLToPath(url) + extension)) {
+        if (existsSync(fileURLToPath(url) + extension) && statSync(fileURLToPath(url) + extension).isFile()) {
           return nextResolve(url.href + extension, context)
         }
       }

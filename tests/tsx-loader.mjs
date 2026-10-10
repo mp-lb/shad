@@ -11,9 +11,9 @@ registerHooks({
     }
     if (specifier.startsWith("file:") || specifier.startsWith(".")) {
       const url = new URL(specifier, context.parentURL)
-      for (const extension of ["", ".tsx", ".ts"]) {
+      for (const extension of [".tsx", ".ts"]) {
         if (existsSync(fileURLToPath(url) + extension) && statSync(fileURLToPath(url) + extension).isFile()) {
-          return nextResolve(url.href + extension, context)
+          return { url: url.href + extension, shortCircuit: true }
         }
       }
     }
@@ -25,7 +25,7 @@ registerHooks({
         format: "module",
         shortCircuit: true,
         source: ts.transpileModule(readFileSync(new URL(url), "utf8"), {
-          compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.ESNext },
+          compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.ESNext },
         }).outputText,
       }
     }

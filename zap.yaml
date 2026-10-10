@@ -25,6 +25,9 @@ tasks:
   lint:
     cmds:
       - NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter playground exec eslint .
+  lint-components:
+    cmds:
+      - NODE_OPTIONS=--max-old-space-size=4096 node apps/playground/node_modules/eslint/bin/eslint.js --config apps/playground/eslint.config.js registry/json-viewer/json-viewer.tsx registry/structured-log-viewer/structured-log-viewer.tsx
   build:
     cmds:
       - pnpm build

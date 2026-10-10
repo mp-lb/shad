@@ -28,8 +28,8 @@ import {
   Copy,
   CopyPlus,
   Search,
-  UnfoldHorizontal,
-  FoldHorizontal,
+  UnfoldVertical,
+  FoldVertical,
   X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -643,7 +643,7 @@ function JsonViewer({
               aria-label="Expand all"
               className="inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <UnfoldHorizontal className="size-3.5" />
+              <UnfoldVertical className="size-3.5" />
             </button>
             <button
               type="button"
@@ -651,7 +651,7 @@ function JsonViewer({
               aria-label="Collapse all"
               className="inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <FoldHorizontal className="size-3.5" />
+              <FoldVertical className="size-3.5" />
             </button>
             <button
               type="button"

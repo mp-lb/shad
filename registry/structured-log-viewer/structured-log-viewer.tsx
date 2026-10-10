@@ -375,12 +375,12 @@ function StructuredLogRow<TEvent extends LogEvent>({
       </button>
 
       {isExpanded ? (
-        <div className="border-t border-border/40 bg-muted/10 p-1.5">
+        <div className="border-t border-border/40 bg-muted/10">
           <JsonViewer
             data={event as JsonValue}
             rootName="event"
             defaultExpanded={2}
-            className="rounded-sm shadow-none"
+            className="rounded-none border-0 bg-transparent shadow-none"
           />
         </div>
       ) : null}

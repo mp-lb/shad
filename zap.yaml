@@ -1,0 +1,33 @@
+project: shad
+ports: [PORT]
+native:
+  docs:
+    cmd: pnpm dev
+    env: "*"
+tasks:
+  compile-agents:
+    cmds:
+      - pnpm dlx @mp-lb/mdcompile agents-md/index.md -o AGENTS.md --optional --silent
+      - pnpm dlx @mp-lb/mdcompile agents-md/index.md -o CLAUDE.md --optional --silent
+  worktree-setup:
+    cmds:
+      - pnpm install --frozen-lockfile
+  test:
+    cmds:
+      - node --test tests/*.test.mjs
+  registry-build:
+    cmds:
+      - pnpm registry:build
+  typecheck:
+    cmds:
+      - pnpm exec tsc --noEmit -p apps/docs/tsconfig.json
+      - pnpm --filter playground exec tsc -b
+  lint:
+    cmds:
+      - NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter playground exec eslint .
+  build:
+    cmds:
+      - pnpm build
+  playground-build:
+    cmds:
+      - pnpm --filter playground build

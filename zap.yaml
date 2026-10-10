@@ -14,7 +14,7 @@ tasks:
       - pnpm install --frozen-lockfile
   test:
     cmds:
-      - node --test tests/*.test.mjs
+      - node --import ./tests/tsx-loader.mjs --test tests/*.test.mjs
   registry-build:
     cmds:
       - pnpm registry:build

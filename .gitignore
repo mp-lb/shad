@@ -15,4 +15,5 @@ apps/docs/public/r
 # Zapper instance state
 .zap/
 .forum/
+tmp/
 *.tsbuildinfo

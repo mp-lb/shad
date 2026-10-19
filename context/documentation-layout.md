@@ -15,3 +15,4 @@ This project's docs live under `docs/` with a fixed layout — keep to it:
 - **`docs/public/`** *(libraries only)* — the opt-in published surface the docs
   site renders (see `standards/libs.md`). Everything else in `docs/` is
   unpublished by default.
+

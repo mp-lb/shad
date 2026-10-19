@@ -7,8 +7,8 @@ native:
 tasks:
   compile-agents:
     cmds:
-      - pnpm dlx @mp-lb/mdcompile agents-md/index.md -o AGENTS.md --optional --silent
-      - pnpm dlx @mp-lb/mdcompile agents-md/index.md -o CLAUDE.md --optional --silent
+      - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o AGENTS.md
+      - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o CLAUDE.md
   worktree-setup:
     cmds:
       - pnpm install --frozen-lockfile

@@ -5,7 +5,7 @@ native:
     cmd: pnpm dev
     env: "*"
 tasks:
-  compile-agents:
+  context-build:
     cmds:
       - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o AGENTS.md
       - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o CLAUDE.md

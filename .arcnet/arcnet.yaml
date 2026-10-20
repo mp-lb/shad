@@ -5,9 +5,6 @@ repository: mp-lb/shad
 approved: true
 vercel:
   dnsZone: mp-lb.dev
-  account:
-    type: team
-    id: team_1w5PsP1pNWCex9vAwF4PqvTs
   sites:
     docs:
       domain: shad.mp-lb.dev
@@ -15,6 +12,10 @@ vercel:
       creationApproved: true
       projectName: arcnet.shad.docs
       root: .
+variables:
+  store: mp-lb/mp-lb
+  paths:
+    - /admin/standard-variables.json
 secrets:
   sources:
     - key: ARCNET_STANDARD_SECRETS_KEY

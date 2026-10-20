@@ -79,8 +79,8 @@ importers:
         version: 4.4.3
     devDependencies:
       '@mp-lb/arcnet':
-        specifier: 0.7.3
-        version: 0.7.3
+        specifier: 0.7.9
+        version: 0.7.9
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13
@@ -896,8 +896,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@mp-lb/arcnet@0.7.3':
-    resolution: {integrity: sha512-+uElumtU9NCbxmr1ZoGu6+vKwdzZE7E5v72aiatbwtD3xAif5vcEmabOp+A3UL0mlUZ56UsmD/ZLcnXAwNWBiw==}
+  '@mp-lb/arcnet@0.7.9':
+    resolution: {integrity: sha512-dhnRcErkoMwl67+xhYZQA4Yt9tncfspoMAybTZ0SIx3+tRNZf8nY3P3Keq8f1+tN8CstNuP7MYLuPBgrYluoEg==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -926,8 +926,8 @@ packages:
     resolution: {integrity: sha512-kwgdR5hVigsib5dz7cjWhHXhkY+NWJbqGV/ik25PJWwHcVGNFsJ0VszQtM8Uwlbj7vt4VJaGvdnhXoON9XqmvQ==}
     engines: {node: '>=18.0.0'}
 
-  '@mp-lb/zapper@0.21.5':
-    resolution: {integrity: sha512-GNSNKKUaAe8VGYZJeeVDCe1vfUto0fF66CnjJXNO7Df1e1EU7JQ0ULrKHM09BZKNlcA4kDA3owQonkakD3IbCA==}
+  '@mp-lb/zapper@0.21.8':
+    resolution: {integrity: sha512-ycAlZIaP0buaY/FtsO7m0NFlfUmYAT3W6N5efxkVXPqgdTgPUgfsMQ4kH8KNQiIXOqSBLV99ymbeHJtxg6AkAA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -5365,10 +5365,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mp-lb/arcnet@0.7.3':
+  '@mp-lb/arcnet@0.7.9':
     dependencies:
       '@mp-lb/forum-secrets': 0.2.1
-      '@mp-lb/zapper': 0.21.5
+      '@mp-lb/zapper': 0.21.8
       commander: 14.0.3
       yaml: 2.8.1
       zod: 4.4.1
@@ -5417,7 +5417,7 @@ snapshots:
       yaml: 2.8.1
       zod: 4.4.3
 
-  '@mp-lb/zapper@0.21.5':
+  '@mp-lb/zapper@0.21.8':
     dependencies:
       '@mp-lb/zapper-sdk': 0.20.1
       commander: 14.0.3

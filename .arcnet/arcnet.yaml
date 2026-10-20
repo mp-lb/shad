@@ -2,14 +2,12 @@ version: 1
 project: shad
 environment: mp-lb
 repository: mp-lb/shad
-approved: true
 vercel:
   dnsZone: mp-lb.dev
   sites:
     docs:
       domain: shad.mp-lb.dev
       mode: new
-      creationApproved: true
       projectName: arcnet.shad.docs
       root: .
 variables:

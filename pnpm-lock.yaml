@@ -79,8 +79,8 @@ importers:
         version: 4.4.3
     devDependencies:
       '@mp-lb/arcnet':
-        specifier: 0.7.9
-        version: 0.7.9
+        specifier: 0.7.11
+        version: 0.7.11
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13
@@ -896,8 +896,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@mp-lb/arcnet@0.7.9':
-    resolution: {integrity: sha512-dhnRcErkoMwl67+xhYZQA4Yt9tncfspoMAybTZ0SIx3+tRNZf8nY3P3Keq8f1+tN8CstNuP7MYLuPBgrYluoEg==}
+  '@mp-lb/arcnet@0.7.11':
+    resolution: {integrity: sha512-SImB5wHU2WU0SWZL8OrAUvYiBB5Pt6nxK/bas2wO9Mt/kMWG5xlbtYPysQz1G51cGAeU7vs1N7ohVIObvk9xUg==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -5365,7 +5365,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mp-lb/arcnet@0.7.9':
+  '@mp-lb/arcnet@0.7.11':
     dependencies:
       '@mp-lb/forum-secrets': 0.2.1
       '@mp-lb/zapper': 0.21.8

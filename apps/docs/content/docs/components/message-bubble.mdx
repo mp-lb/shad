@@ -1,0 +1,14 @@
+---
+title: Message Bubble
+description: Incoming and outgoing chat rows with a pluggable avatar slot.
+---
+
+`MessageBubble` owns alignment, bubble shape, width, and spacing. Pass `side`,
+`label`, and message content. The optional `avatar` slot accepts shadcn Avatar
+children such as `AvatarImage` and `AvatarFallback`.
+
+```tsx
+<MessageBubble side="incoming" label="Assistant">
+  How can I help?
+</MessageBubble>
+```

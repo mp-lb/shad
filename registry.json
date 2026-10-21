@@ -4,6 +4,20 @@
   "homepage": "https://shad.mp-lb.dev",
   "items": [
     {
+      "name": "message-bubble",
+      "type": "registry:component",
+      "title": "Message Bubble",
+      "description": "Avatar-pluggable chat row with incoming and outgoing bubble presentation.",
+      "registryDependencies": ["avatar"],
+      "categories": ["chat", "ai", "display"],
+      "files": [
+        {
+          "path": "registry/message-bubble/message-bubble.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "message-input",
       "type": "registry:component",
       "title": "Message Input",

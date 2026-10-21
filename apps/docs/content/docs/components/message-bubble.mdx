@@ -3,12 +3,17 @@ title: Message Bubble
 description: Incoming and outgoing chat rows with a pluggable avatar slot.
 ---
 
-`MessageBubble` owns alignment, bubble shape, width, and spacing. Pass `side`,
+`MessageBubble` owns alignment, square bubble shape, width, and spacing. Pass `side`,
 `label`, and message content. The optional `avatar` slot accepts shadcn Avatar
 children such as `AvatarImage` and `AvatarFallback`.
+
+`MessageBubbleResponding` uses the same avatar and spacing. Its three faint dots
+start at the incoming bubble's left edge and gently change opacity without moving.
 
 ```tsx
 <MessageBubble side="incoming" label="Assistant">
   How can I help?
 </MessageBubble>
+
+<MessageBubbleResponding label="Assistant" />
 ```

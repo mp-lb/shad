@@ -39,10 +39,10 @@ export function MessageBubble({
       {!isOutgoing && avatarNode}
       <div
         className={cn(
-          "min-w-0 max-w-[min(78%,42rem)] rounded-2xl border px-3.5 py-2 text-sm leading-5 break-words",
+          "min-w-0 max-w-[min(78%,42rem)] border border-border px-3.5 py-2 text-sm leading-5 break-words",
           isOutgoing
-            ? "rounded-br-md border-primary bg-primary text-primary-foreground"
-            : "rounded-bl-md border-border bg-muted text-foreground",
+            ? "bg-muted/50 text-foreground"
+            : "bg-card text-card-foreground",
         )}
       >
         {children}

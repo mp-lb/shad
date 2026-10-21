@@ -7,12 +7,16 @@
       "name": "message-bubble",
       "type": "registry:component",
       "title": "Message Bubble",
-      "description": "Avatar-pluggable chat row with incoming and outgoing bubble presentation.",
+      "description": "Avatar-pluggable chat rows and a subtle responding indicator.",
       "registryDependencies": ["avatar"],
       "categories": ["chat", "ai", "display"],
       "files": [
         {
           "path": "registry/message-bubble/message-bubble.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/message-bubble/message-bubble-responding.tsx",
           "type": "registry:component"
         }
       ]

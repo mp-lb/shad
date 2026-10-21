@@ -2,7 +2,7 @@
   "name": "@mp-lb/shad",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@11.28.6",
   "scripts": {
     "dev": "pnpm registry:build && cd apps/docs && next dev",
     "build": "pnpm registry:build && cd apps/docs && next build",

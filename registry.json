@@ -4,6 +4,29 @@
   "homepage": "https://shad.mp-lb.dev",
   "items": [
     {
+      "name": "chat-container",
+      "type": "registry:component",
+      "title": "Chat Container",
+      "description": "A chat viewport with follow behavior, a jump-to-latest button, and typed date-heading helpers.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["button"],
+      "categories": ["chat", "ai", "layout"],
+      "files": [
+        {
+          "path": "registry/chat-container/chat-container.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/chat-container/chat-date-heading.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/chat-container/interleave-date-headings.ts",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "message-bubble",
       "type": "registry:component",
       "title": "Message Bubble",

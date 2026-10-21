@@ -1,0 +1,30 @@
+---
+title: Chat Container
+description: A scrollable chat viewport that follows new messages until the reader scrolls away.
+---
+
+`ChatContainer` fills the available flex space and follows new content while the
+reader is at the bottom. Scrolling up pauses that behavior and shows a **Jump to
+latest** button. Returning to the bottom resumes following. Content can grow
+without pagination, including when an image loads or a response expands.
+Keep the composer outside the container as a sibling, so only messages scroll.
+`interleaveDateHeadings` inserts a heading whenever the local calendar day changes.
+It requires only `createdAt` and keeps the full message type in each `message` item.
+Pass messages in chronological order. The helper does not fetch or paginate data.
+
+```tsx
+<div className="flex h-96 flex-col">
+  <ChatContainer role="log" aria-label="Conversation" className="p-4" contentClassName="space-y-4">
+    {interleaveDateHeadings(messages).map((item) =>
+      item.type === "date-heading" ? (
+        <ChatDateHeading key={item.key} day={item.day} label={item.label} />
+      ) : (
+        <MessageBubble key={item.message.id} side={item.message.side} label={item.message.label}>
+          {item.message.text}
+        </MessageBubble>
+      ),
+    )}
+  </ChatContainer>
+  <MessageInput onSubmit={sendMessage} />
+</div>
+```

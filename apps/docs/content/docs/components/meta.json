@@ -1,6 +1,7 @@
 {
   "title": "Components",
   "pages": [
+    "chat-container",
     "message-bubble",
     "message-input",
     "mdkit-editor",

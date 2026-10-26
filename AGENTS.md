@@ -29,7 +29,7 @@ A few conventions about these instruction files themselves:
 
 - **The source is `context/` building blocks; the agent files are compiled from them.** `context/index.md` composes project-specific `@<block>.md` imports and standalone Forum links for shared blocks. Edit the project blocks and index, not the generated files.
 - **`CLAUDE.md` and `AGENTS.md` are generated and committed outputs.** The context task first resolves local imports with [`@mp-lb/mdcompile`](https://www.npmjs.com/package/@mp-lb/mdcompile), then pipes that Markdown through `fm compile --stdin` to expand Forum links. Regenerate both files with the project’s context task and commit them with their source changes.
-- **The compiled agent file is small on purpose.** It carries the always-true essentials and *points* at the detailed `docs/standards/*` for the rest — read those on demand rather than expecting everything to be in context.
+- **The compiled agent file is small on purpose.** It carries the always-true essentials. Read relevant shared standards directly from `mp-lb/dev` on demand with `fm read <file>.md --store mp-lb/dev`.
 
 ## Tools you can expect to be authenticated
 
@@ -39,11 +39,11 @@ A handful of CLI tools are installed and already authenticated on this machine �
 - **Google Cloud CLI (`gcloud`)**
 - **AWS CLI (`aws`)**
 - **Zapper** — our process manager and task runner.
-- **Doctrine** — our document sync system.
+- **Forum** — our document system.
 
 ## Git
 
-Some projects use git and some use Doctrine, so be aware of which kind you're in.
+Some projects also sync project documentation with Forum; check the project's documentation instructions before editing docs.
 
 **Local-first.** Work happens locally. Branches isolate a piece of work before it merges to `main`. We **rarely push to GitHub — only to deploy**, from `main`, as a separate step. We never use PRs.
 
@@ -55,9 +55,9 @@ Some projects use git and some use Doctrine, so be aware of which kind you're in
 
 Many projects deploy via CI when you push `main`. To confirm a deploy landed, lean on `gh`: glance at how long recent runs took, then schedule a recheck on a fitting cadence rather than polling tightly. Specifics vary by project.
 
-## Doctrine
+## Forum
 
-Unlike GitHub there are no branches — there's always a single source of truth. **Sync before you edit:** the source lives in the cloud, so the local copy can be stale, and editing stale is how you get conflicts. Pull latest first. After syncing, we commit the synced files to git too, so they always live in the repo.
+Projects with a dedicated Forum store run `fm sync` before and after editing their mapped docs. Projects without one read shared material directly from Forum and do not need a sync configuration. Follow the project's documentation block for its actual store and layout.
 
 ## Task running
 
@@ -162,34 +162,6 @@ The frontend uses [shadcn/ui](https://ui.shadcn.com/) for UI components. Add new
 Always use shadcn/ui where possible, including utilities like `cn` for conditional classnames.
 
 
-## Documentation layout
-
-This project's docs live under `docs/` with a fixed layout — keep to it:
-
-- **Root = project surface.** Only top-level, act-on-it files belong at the root
-  of `docs/`: `README.md`, `STORY.md`, the task board (`*.board.json`), and any
-  studies/positioning you want at eye level. Don't drop loose docs here.
-- **`docs/internals/` = this project's own docs.** Every system/engineering doc —
-  feature docs, architecture notes, setup runbooks, how-things-work explainers —
-  lives here. When you write a doc about how something works, it goes in
-  `docs/internals/`, never loose at the root.
-- **`docs/standards/`, `docs/extensions/`, `docs/examples/`, `docs/skills/` =
-  Fssstack store references.** Shared content composed in via the project's
-  Doctrine store. Read-through; don't fork or edit casually.
-- **`docs/public/`** *(libraries only)* — the opt-in published surface the docs
-  site renders (see `standards/libs.md`). Everything else in `docs/` is
-  unpublished by default.
-
-The compiled `CLAUDE.md`/`AGENTS.md` stays deliberately small — it carries the
-always-true essentials and *points* at `docs/standards/*` for the detail. Read
-those on demand rather than expecting everything to be in context.
-
-
-## Doctrine
-
-Central docs are stored in the cloud using doctrine. You can run commands like `pnpm exec fm read some-file.md` and `pnpm exec fm ls`. Relative file paths are likely to be real files on disk.
-
-
 ## Documentation
 
 This project publishes docs, so they're **generated from the source of truth**, not hand-maintained in parallel — they can't drift:
@@ -199,4 +171,11 @@ This project publishes docs, so they're **generated from the source of truth**, 
 - **`docs:check` runs in CI and fails if the committed docs are stale** — regenerating is not optional.
 - Hand-written narrative (README, guides) lives beside the generated reference: update it when behaviour changes, but never restate signatures or flags — link to the reference instead.
 
-Read `docs/standards/libs.md` for the full model (and `docs/standards/clis.md` if the package ships a `bin`).
+Read `libs.md` from `mp-lb/dev` for the full model (`fm read libs.md --store mp-lb/dev`). If the package ships a CLI, read `clis.md` from the same store.
+
+
+## Documentation
+
+Keep Shad-specific documentation under `docs/`. Public component documentation is part of this project; shared standards and extensions stay in Forum.
+
+This project has no dedicated Forum store or `.forum/` sync configuration. Read shared standards with `fm read <file>.md --store mp-lb/dev` (list them with `fm ls --store mp-lb/dev`). Read shared extensions with `fm read extensions/<file>.md --store mp-lb/fssstack` (list them with `fm ls extensions --store mp-lb/fssstack`).

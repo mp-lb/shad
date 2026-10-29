@@ -14,3 +14,9 @@ pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/full-screen-state.json
 <FullScreenStateDemo />
 
 Provide your own icon, title, description, actions, and children. The component supplies no text or behavior.
+
+Pass multiple buttons in `actions`; they wrap onto another line when needed.
+To show optional details, keep the open state in your app, put a disclosure
+button in `actions`, and render the details as children. Use `aria-expanded`
+and `aria-controls` to connect the button to the details panel, as shown in
+the example above.

@@ -12,6 +12,10 @@ export default function FullScreenStatePage() {
           install="pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/full-screen-state.json"
         />
         <FullScreenStateDemo />
+        <p className="text-sm text-muted-foreground">
+          Provide any buttons in <code>actions</code> and optional details as
+          children. The application controls the disclosure and its labels.
+        </p>
       </div>
     </DocsPage>
   );

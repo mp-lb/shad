@@ -3,6 +3,7 @@ import {
   Braces,
   FileText,
   Github,
+  LayoutPanelTop,
   MessageSquareText,
   Terminal,
 } from "lucide-react"
@@ -19,6 +20,12 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
         url: "/docs",
       }}
       links={[
+        {
+          type: "main",
+          text: "Full Screen State",
+          url: "/docs/components/full-screen-state",
+          icon: <LayoutPanelTop className="size-4" />,
+        },
         {
           type: "main",
           text: "Message Input",

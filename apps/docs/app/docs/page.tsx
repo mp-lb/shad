@@ -1,8 +1,14 @@
 import Link from "next/link"
-import { ArrowRight, Braces, FileText, ListTree, Terminal } from "lucide-react"
+import { ArrowRight, Braces, FileText, LayoutPanelTop, ListTree, Terminal } from "lucide-react"
 import { DocsPage } from "fumadocs-ui/layouts/docs/page"
 
 const components = [
+  {
+    href: "/docs/components/full-screen-state",
+    title: "Full Screen State",
+    description: "A flexible full-screen layout for your own content and actions.",
+    icon: LayoutPanelTop,
+  },
   {
     href: "/docs/components/mdkit-editor",
     title: "MDKit Editor",

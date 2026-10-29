@@ -1,5 +1,6 @@
 import { DocsPage } from "fumadocs-ui/layouts/docs/page";
 
+import { ChatContainerDemo } from "@/components/chat-container-demo";
 import { PageHeader } from "@/components/page-header";
 
 export default function ChatContainerPage() {
@@ -10,6 +11,9 @@ export default function ChatContainerPage() {
         description="A scrollable chat viewport with follow and jump-to-latest behavior."
         install="pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/chat-container.json"
       />
+      <div className="mt-6">
+        <ChatContainerDemo />
+      </div>
     </DocsPage>
   );
 }

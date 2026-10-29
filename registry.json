@@ -356,6 +356,21 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "desktop-states",
+      "type": "registry:component",
+      "title": "Desktop States",
+      "description": "Optional sign-in, browser handoff, offline and error screens for desktop applications.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["button"],
+      "categories": ["feedback", "desktop", "authentication"],
+      "files": [
+        {
+          "path": "registry/desktop-states/desktop-states.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

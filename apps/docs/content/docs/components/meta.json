@@ -12,6 +12,7 @@
     "debugger",
     "inspector",
     "json-viewer",
-    "structured-log-viewer"
+    "structured-log-viewer",
+    "desktop-states"
   ]
 }

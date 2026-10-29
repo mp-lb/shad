@@ -1,13 +1,15 @@
 // @ts-nocheck
-import * as __fd_glob_13 from "../content/docs/components/ui-states.mdx?collection=docs"
-import * as __fd_glob_12 from "../content/docs/components/structured-log-viewer.mdx?collection=docs"
-import * as __fd_glob_11 from "../content/docs/components/modal.mdx?collection=docs"
-import * as __fd_glob_10 from "../content/docs/components/message-input.mdx?collection=docs"
-import * as __fd_glob_9 from "../content/docs/components/message-bubble.mdx?collection=docs"
-import * as __fd_glob_8 from "../content/docs/components/mdkit-editor.mdx?collection=docs"
-import * as __fd_glob_7 from "../content/docs/components/json-viewer.mdx?collection=docs"
-import * as __fd_glob_6 from "../content/docs/components/inspector.mdx?collection=docs"
-import * as __fd_glob_5 from "../content/docs/components/debugger.mdx?collection=docs"
+import * as __fd_glob_15 from "../content/docs/components/ui-states.mdx?collection=docs"
+import * as __fd_glob_14 from "../content/docs/components/structured-log-viewer.mdx?collection=docs"
+import * as __fd_glob_13 from "../content/docs/components/modal.mdx?collection=docs"
+import * as __fd_glob_12 from "../content/docs/components/message-input.mdx?collection=docs"
+import * as __fd_glob_11 from "../content/docs/components/message-bubble.mdx?collection=docs"
+import * as __fd_glob_10 from "../content/docs/components/mdkit-editor.mdx?collection=docs"
+import * as __fd_glob_9 from "../content/docs/components/json-viewer.mdx?collection=docs"
+import * as __fd_glob_8 from "../content/docs/components/inspector.mdx?collection=docs"
+import * as __fd_glob_7 from "../content/docs/components/desktop-states.mdx?collection=docs"
+import * as __fd_glob_6 from "../content/docs/components/debugger.mdx?collection=docs"
+import * as __fd_glob_5 from "../content/docs/components/chat-container.mdx?collection=docs"
 import * as __fd_glob_4 from "../content/docs/components/avatar-stack.mdx?collection=docs"
 import * as __fd_glob_3 from "../content/docs/components/array-editor.mdx?collection=docs"
 import * as __fd_glob_2 from "../content/docs/index.mdx?collection=docs"
@@ -21,4 +23,4 @@ const create = server<typeof Config, import("fumadocs-mdx/runtime/types").Intern
   }
 }>({"doc":{"passthroughs":["extractedReferences"]}});
 
-export const docs = await create.docs("docs", "content/docs", {"meta.json": __fd_glob_0, "components/meta.json": __fd_glob_1, }, {"index.mdx": __fd_glob_2, "components/array-editor.mdx": __fd_glob_3, "components/avatar-stack.mdx": __fd_glob_4, "components/debugger.mdx": __fd_glob_5, "components/inspector.mdx": __fd_glob_6, "components/json-viewer.mdx": __fd_glob_7, "components/mdkit-editor.mdx": __fd_glob_8, "components/message-bubble.mdx": __fd_glob_9, "components/message-input.mdx": __fd_glob_10, "components/modal.mdx": __fd_glob_11, "components/structured-log-viewer.mdx": __fd_glob_12, "components/ui-states.mdx": __fd_glob_13, });
+export const docs = await create.docs("docs", "content/docs", {"meta.json": __fd_glob_0, "components/meta.json": __fd_glob_1, }, {"index.mdx": __fd_glob_2, "components/array-editor.mdx": __fd_glob_3, "components/avatar-stack.mdx": __fd_glob_4, "components/chat-container.mdx": __fd_glob_5, "components/debugger.mdx": __fd_glob_6, "components/desktop-states.mdx": __fd_glob_7, "components/inspector.mdx": __fd_glob_8, "components/json-viewer.mdx": __fd_glob_9, "components/mdkit-editor.mdx": __fd_glob_10, "components/message-bubble.mdx": __fd_glob_11, "components/message-input.mdx": __fd_glob_12, "components/modal.mdx": __fd_glob_13, "components/structured-log-viewer.mdx": __fd_glob_14, "components/ui-states.mdx": __fd_glob_15, });

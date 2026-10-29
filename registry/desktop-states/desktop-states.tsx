@@ -152,19 +152,32 @@ export function DesktopOfflineState({
 export function DesktopErrorState({
   onRetry,
   className,
+  title = "Something went wrong",
+  description = "Please try again.",
+  retryLabel = "Try again",
+  children,
 }: {
   onRetry: () => void;
   className?: string;
+  title?: string;
+  description?: ReactNode;
+  retryLabel?: string;
+  children?: ReactNode;
 }) {
   return (
     <DesktopStateFrame
       className={className}
-      title="Something went wrong"
+      title={title}
       icon={<CircleAlert className="size-6" />}
-      description="Please try again."
+      description={
+        <>
+          {description}
+          {children}
+        </>
+      }
       action={
         <Button type="button" onClick={onRetry}>
-          Try again
+          {retryLabel}
         </Button>
       }
     />

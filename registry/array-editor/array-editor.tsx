@@ -172,14 +172,18 @@ function ArrayEditorRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn("min-w-0", isDragging && "relative z-10 shadow-lg")}
+      className={cn(
+        "min-w-0",
+        isDragging &&
+          "relative z-10 rounded-md bg-background shadow-lg",
+      )}
     >
       <div
         className={cn(
           renderItem
             ? "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-background px-3 py-2.5"
             : "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md border bg-background px-2 py-2",
-          isDragging && "shadow-lg",
+          isDragging && "rounded-md shadow-lg ring-1 ring-inset ring-border",
         )}
       >
         <button
@@ -382,13 +386,7 @@ export function ListEditor({
   }
 
   const editorRows = (
-    <div
-      aria-label={listLabel}
-      role="list"
-      className={
-        renderItem ? "divide-y overflow-hidden rounded-lg border" : "grid gap-2"
-      }
-    >
+    <div className={renderItem ? "divide-y" : "grid gap-2"}>
       {normalizedItems.length > 0 ? (
         normalizedItems.map((item) => (
           <ArrayEditorRow
@@ -413,40 +411,46 @@ export function ListEditor({
           {emptyLabel}
         </div>
       )}
-      {onStartCreate ? (
-        creating && renderCreate ? (
-          renderCreate()
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full justify-start rounded-none px-4 py-2.5 text-muted-foreground"
-            disabled={createDisabled}
-            onClick={onStartCreate}
-          >
-            <Plus className="size-4" />
-            {addButtonLabel}
-          </Button>
-        )
-      ) : null}
     </div>
   );
 
   return (
     <div className={cn("grid gap-3", className)}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        modifiers={[restrictToListArea]}
-        onDragEnd={finishDrag}
+      <div
+        aria-label={listLabel}
+        role="list"
+        className={renderItem ? "overflow-hidden rounded-lg border" : undefined}
       >
-        <SortableContext
-          items={sortableIds}
-          strategy={verticalListSortingStrategy}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToListArea]}
+          onDragEnd={finishDrag}
         >
-          {editorRows}
-        </SortableContext>
-      </DndContext>
+          <SortableContext
+            items={sortableIds}
+            strategy={verticalListSortingStrategy}
+          >
+            {editorRows}
+          </SortableContext>
+        </DndContext>
+        {onStartCreate ? (
+          creating && renderCreate ? (
+            renderCreate()
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full justify-start rounded-none border-t px-4 py-2.5 text-muted-foreground"
+              disabled={createDisabled}
+              onClick={onStartCreate}
+            >
+              <Plus className="size-4" />
+              {addButtonLabel}
+            </Button>
+          )
+        ) : null}
+      </div>
       {onCreate ? (
         <ArrayEditorCreateRow
           addButtonLabel={addButtonLabel}

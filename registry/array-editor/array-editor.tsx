@@ -153,6 +153,7 @@ function ArrayEditorRow({
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 1 : undefined,
+    borderWidth: isDragging && renderItem ? 0 : undefined,
   };
 
   function commitRename() {
@@ -172,18 +173,14 @@ function ArrayEditorRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "min-w-0",
-        isDragging &&
-          "relative z-10 rounded-md bg-background shadow-lg",
-      )}
+      className={cn("min-w-0", isDragging && "relative z-10 bg-background")}
     >
       <div
         className={cn(
           renderItem
             ? "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-background px-3 py-2.5"
             : "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md border bg-background px-2 py-2",
-          isDragging && "rounded-md shadow-lg ring-1 ring-inset ring-border",
+          isDragging && !renderItem && "shadow-lg",
         )}
       >
         <button
@@ -435,20 +432,27 @@ export function ListEditor({
           </SortableContext>
         </DndContext>
         {onStartCreate ? (
-          creating && renderCreate ? (
-            renderCreate()
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full justify-start rounded-none border-t px-4 py-2.5 text-muted-foreground"
-              disabled={createDisabled}
-              onClick={onStartCreate}
-            >
-              <Plus className="size-4" />
-              {addButtonLabel}
-            </Button>
-          )
+          <div
+            role="listitem"
+            className={cn(
+              renderItem && normalizedItems.length > 0 && "border-t",
+            )}
+          >
+            {creating && renderCreate ? (
+              renderCreate()
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-auto w-full justify-start rounded-none border-0 px-4 py-2.5 text-muted-foreground"
+                disabled={createDisabled}
+                onClick={onStartCreate}
+              >
+                <Plus className="size-4" />
+                {addButtonLabel}
+              </Button>
+            )}
+          </div>
         ) : null}
       </div>
       {onCreate ? (

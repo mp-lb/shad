@@ -54,7 +54,18 @@ export type ArrayEditorProps = {
   onMove?: (fromIndex: number, toIndex: number) => void;
   onRename?: (itemId: string, label: string) => void;
   renameDisabled?: boolean;
+  /** Custom inline rows and forms. Omitting these preserves the simple editor. */
+  renderItem?: (item: ArrayEditorObjectItem, index: number) => React.ReactNode;
+  renderEditor?: (item: ArrayEditorObjectItem) => React.ReactNode;
+  editingId?: string | null;
+  renderCreate?: () => React.ReactNode;
+  creating?: boolean;
+  onStartCreate?: () => void;
+  listLabel?: string;
 };
+
+export type ListEditorProps = ArrayEditorProps;
+export type ListEditorItem = ArrayEditorItem;
 
 export type ArrayEditorDialogProps = ArrayEditorProps & {
   onOpenChange: (open: boolean) => void;
@@ -106,7 +117,15 @@ function ArrayEditorRow({
   onMove,
   onRename,
   renameDisabled,
+  renderItem,
+  renderEditor,
+  editingId,
+  index,
 }: {
+  renderItem?: ArrayEditorProps["renderItem"];
+  renderEditor?: ArrayEditorProps["renderEditor"];
+  editingId?: string | null;
+  index: number;
   canDelete: boolean;
   deleteDisabled: boolean;
   editDisabled: boolean;
@@ -153,80 +172,92 @@ function ArrayEditorRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md border bg-background px-2 py-2",
-        isDragging && "shadow-lg",
-      )}
+      className={cn("min-w-0", isDragging && "relative z-10 shadow-lg")}
     >
-      <button
-        ref={setActivatorNodeRef}
-        type="button"
+      <div
         className={cn(
-          "flex h-8 w-7 items-center justify-center rounded-md text-muted-foreground",
-          onMove
-            ? "cursor-grab hover:bg-muted active:cursor-grabbing"
-            : "cursor-default opacity-40",
+          renderItem
+            ? "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-background px-3 py-2.5"
+            : "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md border bg-background px-2 py-2",
+          isDragging && "shadow-lg",
         )}
-        aria-label={`Move ${item.label}`}
-        disabled={!onMove}
-        {...attributes}
-        {...listeners}
       >
-        <GripVertical className="size-4" />
-      </button>
-      <div className="min-w-0">
-        {isRenameEnabled ? (
-          <Input
-            className="h-7 w-full border-transparent bg-transparent px-2 text-sm font-medium shadow-none hover:border-input focus-visible:ring-0"
-            value={draftLabel}
-            onChange={(event) => setDraftLabel(event.target.value)}
-            onBlur={commitRename}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.currentTarget.blur();
-              }
+        <button
+          ref={setActivatorNodeRef}
+          type="button"
+          className={cn(
+            "flex h-8 w-7 items-center justify-center rounded-md text-muted-foreground",
+            onMove
+              ? "cursor-grab hover:bg-muted active:cursor-grabbing"
+              : "cursor-default opacity-40",
+          )}
+          aria-label={`Move ${item.label}`}
+          disabled={!onMove}
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="size-4" />
+        </button>
+        <div className="min-w-0">
+          {renderItem ? (
+            renderItem(item, index)
+          ) : isRenameEnabled ? (
+            <Input
+              className="h-7 w-full border-transparent bg-transparent px-2 text-sm font-medium shadow-none hover:border-input focus-visible:ring-0"
+              value={draftLabel}
+              onChange={(event) => setDraftLabel(event.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.currentTarget.blur();
+                }
 
-              if (event.key === "Escape") {
-                setDraftLabel(item.label);
-                event.currentTarget.blur();
-              }
-            }}
-          />
-        ) : (
-          <div className="truncate px-2 text-sm font-medium">{item.label}</div>
-        )}
-        {item.description ? (
-          <div className="truncate px-2 text-xs text-muted-foreground">
-            {item.description}
-          </div>
-        ) : null}
+                if (event.key === "Escape") {
+                  setDraftLabel(item.label);
+                  event.currentTarget.blur();
+                }
+              }}
+            />
+          ) : (
+            <div className="truncate px-2 text-sm font-medium">
+              {item.label}
+            </div>
+          )}
+          {!renderItem && item.description ? (
+            <div className="truncate px-2 text-xs text-muted-foreground">
+              {item.description}
+            </div>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-1">
+          {onEdit ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onEdit(item.id)}
+              disabled={editDisabled}
+              aria-label={`Edit ${item.label}`}
+              aria-expanded={renderEditor ? editingId === item.id : undefined}
+            >
+              <Pencil className="size-3.5" />
+            </Button>
+          ) : null}
+          {onDelete ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onDelete(item.id)}
+              disabled={!canDelete || deleteDisabled}
+              aria-label={`Delete ${item.label}`}
+            >
+              <X className="size-3.5" />
+            </Button>
+          ) : null}
+        </div>
       </div>
-      <div className="flex items-center gap-1">
-        {onEdit ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => onEdit(item.id)}
-            disabled={editDisabled}
-            aria-label={`Edit ${item.label}`}
-          >
-            <Pencil className="size-3.5" />
-          </Button>
-        ) : null}
-        {onDelete ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => onDelete(item.id)}
-            disabled={!canDelete || deleteDisabled}
-            aria-label={`Delete ${item.label}`}
-          >
-            <X className="size-3.5" />
-          </Button>
-        ) : null}
-      </div>
+      {renderEditor && editingId === item.id ? renderEditor(item) : null}
     </div>
   );
 }
@@ -283,7 +314,7 @@ function ArrayEditorCreateRow({
   );
 }
 
-export function ArrayEditor({
+export function ListEditor({
   addButtonLabel = "Add",
   className,
   createDisabled = false,
@@ -299,6 +330,13 @@ export function ArrayEditor({
   onMove,
   onRename,
   renameDisabled = false,
+  renderItem,
+  renderEditor,
+  editingId,
+  renderCreate,
+  creating = false,
+  onStartCreate,
+  listLabel = "Items",
 }: ArrayEditorProps) {
   const normalizedItems = React.useMemo(
     () => items.map(normalizeArrayEditorItem),
@@ -344,11 +382,21 @@ export function ArrayEditor({
   }
 
   const editorRows = (
-    <div className="grid gap-2">
+    <div
+      aria-label={listLabel}
+      role="list"
+      className={
+        renderItem ? "divide-y overflow-hidden rounded-lg border" : "grid gap-2"
+      }
+    >
       {normalizedItems.length > 0 ? (
         normalizedItems.map((item) => (
           <ArrayEditorRow
             key={`${item.id}:${item.label}`}
+            index={normalizedItems.indexOf(item)}
+            renderItem={renderItem}
+            renderEditor={renderEditor}
+            editingId={editingId}
             canDelete={items.length > minItems}
             deleteDisabled={deleteDisabled}
             editDisabled={editDisabled}
@@ -360,11 +408,27 @@ export function ArrayEditor({
             renameDisabled={renameDisabled}
           />
         ))
-      ) : (
+      ) : renderItem ? null : (
         <div className="rounded-md border border-dashed bg-background px-3 py-4 text-sm text-muted-foreground">
           {emptyLabel}
         </div>
       )}
+      {onStartCreate ? (
+        creating && renderCreate ? (
+          renderCreate()
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full justify-start rounded-none px-4 py-2.5 text-muted-foreground"
+            disabled={createDisabled}
+            onClick={onStartCreate}
+          >
+            <Plus className="size-4" />
+            {addButtonLabel}
+          </Button>
+        )
+      ) : null}
     </div>
   );
 
@@ -394,6 +458,8 @@ export function ArrayEditor({
     </div>
   );
 }
+
+export const ArrayEditor = ListEditor;
 
 export function ArrayEditorDialog({
   onOpenChange,

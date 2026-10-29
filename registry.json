@@ -100,6 +100,27 @@
       ]
     },
     {
+      "name": "list-editor",
+      "type": "registry:component",
+      "title": "List Editor",
+      "description": "Drag-and-drop list editor with optional label creation, renaming, deletion, and edit callbacks.",
+      "dependencies": [
+        "@dnd-kit/core",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities",
+        "lucide-react"
+      ],
+      "registryDependencies": ["button", "dialog", "input"],
+      "categories": ["forms", "dashboard", "editor"],
+      "files": [
+        {
+          "path": "registry/array-editor/array-editor.tsx",
+          "target": "components/ui/list-editor.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "array-editor",
       "type": "registry:component",
       "title": "Array Editor",

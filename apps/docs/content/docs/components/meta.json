@@ -13,6 +13,6 @@
     "inspector",
     "json-viewer",
     "structured-log-viewer",
-    "desktop-states"
+    "full-screen-state"
   ]
 }

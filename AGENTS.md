@@ -7,7 +7,6 @@ Agent instructions are compiled from reusable blocks in `context/`, with `contex
 Edit the blocks and index in `context/`, then run `zap task context-build` to regenerate `AGENTS.md` and `CLAUDE.md`.
 
 
-
 ## Code style
 
 - Use PascalCase for components
@@ -44,6 +43,33 @@ This is a full installation deploying the `docs` Vercel site at `shad.mp-lb.dev`
 
 Component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for docs aliases.
 
+## Documentation
+
+Keep Shad-specific documentation under `docs/`. Public component documentation is part of this project; shared standards and extensions stay in Forum.
+
+This project has no dedicated Forum store or `.forum/` sync configuration. Read shared standards with `fm read <file>.md --store mp-lb/dev` (list them with `fm ls --store mp-lb/dev`). Read shared extensions with `fm read extensions/<extension>/README.md --store mp-lb/fssstack` (list them with `fm ls extensions --store mp-lb/fssstack`).
+
+
+### Component documentation
+
+The public site uses Next.js routes under `apps/docs/app/docs/components/` for the rendered component pages. Each registry component must have a page with its install command and a working, representative rendered example; use a client demo when the component is interactive. The source lives under `registry/` and `registry.json` defines the installable files and dependencies. The matching MDX entry under `apps/docs/content/docs/components/` supplies the docs navigation metadata; add it to `meta.json`. The docs sidebar is one flat list derived from that metadata, and `/docs` opens its first component. Avoid separate hard-coded component navigation lists.
+
+When adding or changing a component, update the registry, its route, its demo, and its MDX navigation entry together. Run `pnpm registry:build` and `pnpm build` to verify the generated registry and docs. Review every component page for a usable example when reorganizing the docs.
+
+## Delivery
+
+Push `main` to publish the hosted component registry; check the deployment workflow and the changed component URL under `https://shad.mp-lb.dev/r/`.
+
+## Project UI
+
+This repository maintains a component registry. Preserve the actual registry files and consumer docs/playground structure; do not assume `apps/frontend` exists.
+
+Installed shadcn component locations: `apps/playground/src/components/ui` (configuration: `apps/playground/components.json`, theme: `apps/playground/src/index.css`).
+
+## Validation
+
+For context changes run `zap task context-build` and review matching generated outputs. For component changes, follow the existing component documentation policy and run the configured registry/build checks.
+
 ## Standards
 
 Read the relevant MAP Lab standards before changing the corresponding code. List them with `fm ls --store mp-lb/dev` and read one with `fm read <file>.md --store mp-lb/dev`.
@@ -53,7 +79,6 @@ Read the relevant MAP Lab standards before changing the corresponding code. List
 - `event-schema.md` and `event-sourcing.md`: event schemas and event-sourced domains.
 - `libs.md`, `lib-release.md` and `clis.md`: libraries, publishing and command-line tools.
 - For agent context, read `standards/context-files.md` from `mp-lb/fssstack`.
-
 
 
 ## Development
@@ -71,20 +96,14 @@ Mise is the base layer: it selects Node and the package manager. Zapper runs tas
 Read Node from `.node-version` and pnpm from `package.json#packageManager`; `mise.toml` reads these pins rather than duplicating them. npm projects use npm bundled with Node. Preserve the project's versions and package manager. Keep locally built CLI entrypoints in a version-independent PATH directory so switching Node does not hide `zap` or `fm`.
 
 
-
 ## Validation
 
 Run the applicable configured checks, tests and builds; use `zap task check`, `zap task test` and `zap task build` where available. Run focused checks and follow project-specific validation instructions; report checks that could not run.
 
 
-## Validation
-
-For context changes run `zap task context-build` and review matching generated outputs. For component changes, follow the existing component documentation policy and run the configured registry/build checks.
-
 ## Scripts
 
 Write project scripts in TypeScript in the package that owns the behaviour, or `packages/scripts` when there is no natural owner, and include them in normal lint and typecheck checks. Expose each script as a thin Zap task that invokes it with `tsx` (for example, `zap t somemigration` runs `packages/scripts/somemigration.ts`); keep CI callers aligned when moving scripts.
-
 
 
 ## Documentation
@@ -92,27 +111,10 @@ Write project scripts in TypeScript in the package that owns the behaviour, or `
 Keep project-specific documentation in `docs/` and update it with behavior changes. Follow the project's own instructions for any Forum sync mapping; read shared standards and extension setup from their Forum stores.
 
 
-## Documentation
-
-Keep Shad-specific documentation under `docs/`. Public component documentation is part of this project; shared standards and extensions stay in Forum.
-
-This project has no dedicated Forum store or `.forum/` sync configuration. Read shared standards with `fm read <file>.md --store mp-lb/dev` (list them with `fm ls --store mp-lb/dev`). Read shared extensions with `fm read extensions/<extension>/README.md --store mp-lb/fssstack` (list them with `fm ls extensions --store mp-lb/fssstack`).
-
-
-### Component documentation
-
-The public site uses Next.js routes under `apps/docs/app/docs/components/` for the rendered component pages. Each registry component must have a page with its install command and a working, representative rendered example; use a client demo when the component is interactive. The source lives under `registry/` and `registry.json` defines the installable files and dependencies. The matching MDX entry under `apps/docs/content/docs/components/` supplies the docs navigation metadata; add it to `meta.json`. The docs sidebar is one flat list derived from that metadata, and `/docs` opens its first component. Avoid separate hard-coded component navigation lists.
-
-When adding or changing a component, update the registry, its route, its demo, and its MDX navigation entry together. Run `pnpm registry:build` and `pnpm build` to verify the generated registry and docs. Review every component page for a usable example when reorganizing the docs.
-
 ## Delivery
 
 Push `main` to run the configured delivery workflows for applications and packages. Check GitHub Actions and follow any project-specific release exceptions.
 
-
-## Delivery
-
-Push `main` to publish the hosted component registry; check the deployment workflow and the changed component URL under `https://shad.mp-lb.dev/r/`.
 
 <!-- Project types -->
 
@@ -140,12 +142,6 @@ pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/ui-states.json
 
 CLI reference: https://ui.shadcn.com/docs/cli.
 
-
-## Project UI
-
-This repository maintains a component registry. Preserve the actual registry files and consumer docs/playground structure; do not assume `apps/frontend` exists.
-
-Installed shadcn component locations: `apps/playground/src/components/ui` (configuration: `apps/playground/components.json`, theme: `apps/playground/src/index.css`).
 
 <!-- Extensions -->
 

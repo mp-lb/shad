@@ -1,12 +1,20 @@
 "use client";
 
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { Fragment, useId, type ComponentProps, type ReactNode } from "react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { FullScreenState } from "@/components/full-screen-state";
 
-type FullScreenCodeEntryProps = Pick<ComponentProps<typeof FullScreenState>, "icon" | "title" | "description" | "className"> & {
+type FullScreenCodeEntryProps = Pick<
+  ComponentProps<typeof FullScreenState>,
+  "icon" | "title" | "description" | "className"
+> & {
   code: string;
   onCodeChange: (code: string) => void;
   onConfirm: (code: string) => void;
@@ -48,7 +56,9 @@ export function FullScreenCodeEntry({
           if (complete && !pending) onConfirm(code);
         }}
       >
-        <label htmlFor={inputId} className="sr-only">{codeLabel}</label>
+        <label htmlFor={inputId} className="sr-only">
+          {codeLabel}
+        </label>
         <InputOTP
           id={inputId}
           value={code}
@@ -57,21 +67,45 @@ export function FullScreenCodeEntry({
           pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
           inputMode="text"
           autoComplete="one-time-code"
-          pasteTransformer={(value) => value.replace(/[\s-]/g, "").toUpperCase()}
+          pasteTransformer={(value) =>
+            value.replace(/[\s-]/g, "").toUpperCase()
+          }
           disabled={pending}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          containerClassName="flex-wrap justify-center"
+          containerClassName="justify-center gap-2"
         >
-          {Array.from({ length: Math.ceil(codeLength / groupSize) }, (_, group) => (
-            <InputOTPGroup key={group}>
-              {Array.from({ length: Math.min(groupSize, codeLength - group * groupSize) }, (_, slot) => (
-                <InputOTPSlot key={slot} index={group * groupSize + slot} />
-              ))}
-            </InputOTPGroup>
-          ))}
+          {Array.from(
+            { length: Math.ceil(codeLength / groupSize) },
+            (_, group) => (
+              <Fragment key={group}>
+                {group > 0 ? <InputOTPSeparator /> : null}
+                <InputOTPGroup>
+                  {Array.from(
+                    {
+                      length: Math.min(
+                        groupSize,
+                        codeLength - group * groupSize,
+                      ),
+                    },
+                    (_, slot) => (
+                      <InputOTPSlot
+                        key={slot}
+                        index={group * groupSize + slot}
+                        className="h-12 w-6 text-lg sm:h-16 sm:w-10 sm:text-2xl"
+                      />
+                    ),
+                  )}
+                </InputOTPGroup>
+              </Fragment>
+            ),
+          )}
         </InputOTP>
-        {error ? <p id={errorId} role="alert" className="text-sm text-destructive">{error}</p> : null}
+        {error ? (
+          <p id={errorId} role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        ) : null}
         <Button type="submit" disabled={!complete || pending}>
           {pending ? pendingLabel : confirmLabel}
         </Button>

@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "pnpm build",
+  "buildCommand": "pnpm ci:lint-tests && pnpm ci:typecheck-tests && pnpm ci:test && pnpm build",
   "installCommand": "pnpm install --frozen-lockfile",
   "outputDirectory": "apps/docs/.next"
 }

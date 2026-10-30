@@ -4,6 +4,9 @@
   "type": "module",
   "packageManager": "pnpm@11.28.6",
   "scripts": {
+    "ci:test": "tsx --tsconfig tsconfig.tests.json --test tests/*.test.ts",
+    "ci:typecheck-tests": "tsc --noEmit -p tsconfig.tests.json",
+    "ci:lint-tests": "eslint tests/*.test.ts",
     "dev": "pnpm registry:build && cd apps/docs && next dev",
     "build": "pnpm registry:build && cd apps/docs && next build",
     "preview": "cd apps/docs && next start",

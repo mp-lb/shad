@@ -7,11 +7,8 @@ native:
 tasks:
   scripts-check:
     cmds:
-      - pnpm exec eslint tests/*.test.ts
-      - pnpm exec tsc --noEmit -p tsconfig.tests.json
-  test-ts:
-    cmds:
-      - pnpm exec tsx --tsconfig tsconfig.tests.json --test tests/*.test.ts
+      - pnpm ci:lint-tests
+      - pnpm ci:typecheck-tests
   context-build:
     cmds:
       - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o AGENTS.md
@@ -21,16 +18,18 @@ tasks:
       - pnpm install --frozen-lockfile
   test:
     cmds:
-      - node --import ./tests/tsx-loader.mjs --test tests/*.test.mjs
+      - pnpm ci:test
   registry-build:
     cmds:
       - pnpm registry:build
   typecheck:
     cmds:
+      - pnpm ci:typecheck-tests
       - pnpm exec tsc --noEmit -p apps/docs/tsconfig.json
       - pnpm --filter playground exec tsc -b
   lint:
     cmds:
+      - pnpm ci:lint-tests
       - NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter playground exec eslint .
   lint-components:
     cmds:

@@ -19,3 +19,5 @@ Component registry / shadcn docs site.
 [docs-website.md](https://hyperdoc.forumlabs.net/5326d5e4-6f20-47d1-81bc-2be9e0a86d6d)
 
 @documentation.md
+
+@scripts.md

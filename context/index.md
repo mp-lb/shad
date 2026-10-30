@@ -10,6 +10,10 @@
 <!-- Project types -->
 @ui.md
 
+<!-- Extensions -->
+@arcnet.md
+@secrets.md
+
 <!-- MapLab augmentations -->
 @maplab-workflow.md
 @maplab-standards.md

@@ -18,6 +18,7 @@ jobs:
           node-version: 22
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
+      - run: pnpm ci:lint-tests && pnpm ci:typecheck-tests && pnpm ci:test
       - run: pnpm exec arcnet check
       - id: config
         run: pnpm exec arcnet ci

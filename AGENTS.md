@@ -36,6 +36,8 @@ Component registry and documentation site. Registry sources live in `registry/`;
 ### Related tooling
 
 Shared tooling is developed in sibling checkouts under `~/Work`: Zapper (`zapper`) runs tasks, Forum (`forum`) provides `fm`, Tools (`tools`) provides ArcNet, and Stackforge (`stackforge`) owns setup conventions. When a change belongs in an owned dependency, inspect and update that source repository as needed, follow its `AGENTS.md`, then rebuild/relink the CLI or update the consuming dependency. Verify the command resolves to the intended build.
+
+This is a full installation deploying the `docs` Vercel site at `shad.mp-lb.dev`. Its GitHub environment is `arcnet-production`; the `deploy` secret consumer supplies the configured Vercel and Cloudflare credentials.
 ## Standards
 
 List shared standards with `fm ls --store mp-lb/dev`; read one with `fm read <file>.md --store mp-lb/dev`.
@@ -108,6 +110,7 @@ This repository maintains a component registry. Preserve the actual registry fil
 Installed shadcn component locations: `apps/playground/src/components/ui` (configuration: `apps/playground/components.json`, theme: `apps/playground/src/index.css`).
 
 <!-- Extensions -->
+
 ## ArcNet
 
 This project uses ArcNet. `.arcnet/arcnet.yaml` records its configured sources, consumers and selected deployment services. Read that configuration and the project’s delivery instructions before changing infrastructure. Minimal installations may only manage secrets/variables; do not assume an application is deployed.
@@ -116,9 +119,7 @@ Keep deployment build paths, runtime entrypoints, health settings and domains al
 
 Setup and updates: `fm read extensions/arcnet/README.md --store mp-lb/fssstack` and `fm read SETUP.md --store mp-lb/arcnet`.
 
-This is a full installation deploying the `docs` Vercel site at `shad.mp-lb.dev`. Its GitHub environment is `arcnet-production`; the `deploy` secret consumer supplies the configured Vercel and Cloudflare credentials.
-
-### Secrets and variables
+## ArcNet secrets and variables
 
 Read `.arcnet/arcnet.yaml` for the actual Forum sources and configured consumers. Source values live in those stores; encrypted snapshots under `.arcnet/secrets/` are committed. GitHub repository secrets contain CI decryption keys, not the plaintext source values.
 

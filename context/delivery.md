@@ -15,3 +15,5 @@ curl -I -L https://shad.mp-lb.dev/r/message-input.json
 ```
 
 There is also a CodeQL GitHub Action on pushes, but it is analysis only; it is not the publishing mechanism.
+
+The canonical registry/docs hostname is `shad.mp-lb.dev`, declared under the `docs` Vercel site in `.arcnet/arcnet.yaml`. ArcNet’s deployment consumer uses the configured Vercel and Cloudflare credentials. Preserve registry URLs under `/r/` when changing domain or hosting configuration.

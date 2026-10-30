@@ -30,6 +30,7 @@
     "fumadocs-core": "^16.6.16",
     "fumadocs-mdx": "^14.2.9",
     "fumadocs-ui": "npm:@fumadocs/base-ui@^16.6.16",
+    "input-otp": "^1.5.0",
     "lucide-react": "^0.554.0",
     "next": "^16.2.1",
     "radix-ui": "^1.4.3",

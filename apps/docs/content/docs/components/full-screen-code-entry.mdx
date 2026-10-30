@@ -1,0 +1,20 @@
+---
+title: "Full-screen code entry"
+description: "A full-screen confirmation code form using shadcn Input OTP."
+---
+
+import { FullScreenCodeEntryDemo } from "../../../components/full-screen-code-entry-demo";
+
+# Full-screen code entry
+
+```bash
+pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/full-screen-code-entry.json
+```
+
+<FullScreenCodeEntryDemo />
+
+Controlled props: `code`, `onCodeChange`, and `onConfirm`. The default code length is eight alphanumeric characters; override `codeLength` for your provider. Set `pending` while verifying and `error` when verification fails. Title, description, icon, labels and layout class are customizable.
+
+Prefill from the URL's public `user_code` parameter, normalizing to uppercase and removing spaces and hyphens. Never put a private device code or token in the URL. Prefilling and completing the input never authorize automatically: confirmation requires submitting the form.
+
+This component supplies presentation only. The application owns sign-in, verification, error handling and the success screen. Clerk's hosted approval page does not require this component.

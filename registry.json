@@ -374,6 +374,26 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "full-screen-code-entry",
+      "type": "registry:component",
+      "title": "Full-screen code entry",
+      "description": "A full-screen confirmation code form with explicit approval.",
+      "registryDependencies": [
+        "input-otp",
+        "button",
+        "https://shad.mp-lb.dev/r/full-screen-state.json"
+      ],
+      "dependencies": [
+        "input-otp"
+      ],
+      "files": [
+        {
+          "path": "registry/full-screen-code-entry/full-screen-code-entry.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

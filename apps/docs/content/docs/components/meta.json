@@ -13,6 +13,7 @@
     "inspector",
     "json-viewer",
     "structured-log-viewer",
-    "full-screen-state"
+    "full-screen-state",
+    "full-screen-code-entry"
   ]
 }

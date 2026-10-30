@@ -7,3 +7,5 @@ Component registry and documentation site. Registry sources live in `registry/`;
 Shared tooling is developed in sibling checkouts under `~/Work`: Zapper (`zapper`) runs tasks, Forum (`forum`) provides `fm`, Tools (`tools`) provides ArcNet, and Stackforge (`stackforge`) owns setup conventions. When a change belongs in an owned dependency, inspect and update that source repository as needed, follow its `AGENTS.md`, then rebuild/relink the CLI or update the consuming dependency. Verify the command resolves to the intended build.
 
 This is a full installation deploying the `docs` Vercel site at `shad.mp-lb.dev`. Its GitHub environment is `arcnet-production`; the `deploy` secret consumer supplies the configured Vercel and Cloudflare credentials.
+
+Component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for docs aliases.

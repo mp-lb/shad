@@ -38,9 +38,21 @@ Component registry and documentation site. Registry sources live in `registry/`;
 Shared tooling is developed in sibling checkouts under `~/Work`: Zapper (`zapper`) runs tasks, Forum (`forum`) provides `fm`, Tools (`tools`) provides ArcNet, and Stackforge (`stackforge`) owns setup conventions. When a change belongs in an owned dependency, inspect and update that source repository as needed, follow its `AGENTS.md`, then rebuild/relink the CLI or update the consuming dependency. Verify the command resolves to the intended build.
 
 This is a full installation deploying the `docs` Vercel site at `shad.mp-lb.dev`. Its GitHub environment is `arcnet-production`; the `deploy` secret consumer supplies the configured Vercel and Cloudflare credentials.
+
+Component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for docs aliases.
+
 ## Standards
 
-List shared standards with `fm ls --store mp-lb/dev`; read one with `fm read <file>.md --store mp-lb/dev`.
+Read the relevant MAP Lab standards before changing the corresponding code. List them with `fm ls --store mp-lb/dev` and read one with `fm read <file>.md --store mp-lb/dev`.
+
+- `style-guide.md` and `component-decomposition.md`: code and component structure.
+- `crud.md`, `errors.md`, `trpc.md` and `logging.md`: backend APIs, services and error handling; list the store for current available guidance.
+- `event-schema.md` and `event-sourcing.md`: event schemas and event-sourced domains.
+- `libs.md`, `lib-release.md` and `clis.md`: libraries, publishing and command-line tools.
+- `context-files.md`: maintaining agent context.
+
+
+
 ## Development
 
 Use Zapper for processes and tasks: `zap status`, `zap up`, `zap logs <service> --no-follow`, and `zap task <task>`. Inspect the existing stack before starting another copy. Services and tasks that need environment variables must receive Zapper's resolved environment.
@@ -48,18 +60,28 @@ Use Zapper for processes and tasks: `zap status`, `zap up`, `zap logs <service> 
 Keep service names, dynamic ports and task commands in `zap.yaml`; do not hardcode development ports. Non-secret defaults live in `.env.local`; secrets belong in ignored `.env` or the configured secret source. Never put secret values in context.
 
 The canonical tool versions are `.node-version` and `package.json#packageManager`; preserve them when changing local tooling or CI.
-
 ### Local tool versions
 
 Mise is the base layer: it selects Node and the package manager. Zapper runs tasks and services on top of those tools. Run `mise trust` and `mise install` for checkout setup, then use an activated mise shell or `mise exec -- zap task <task>`.
 
 Read Node from `.node-version` and pnpm from `package.json#packageManager`; `mise.toml` reads these pins rather than duplicating them. npm projects use npm bundled with Node. Preserve the project's versions and package manager. Keep locally built CLI entrypoints in a version-independent PATH directory so switching Node does not hide `zap` or `fm`.
+
+
 ## Validation
 
 For context changes run `zap task context-build` and review matching generated outputs. For component changes, follow the existing component documentation policy and run the configured registry/build checks.
+
 ## Scripts
 
-Write project scripts in TypeScript in the package that owns the behaviour, or `packages/scripts` when there is no natural owner, and include them in normal lint and typecheck checks. Expose scripts through thin Zap tasks using `tsx`; component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for the docs aliases.
+Write project scripts in TypeScript in the package that owns the behaviour, or `packages/scripts` when there is no natural owner, and include them in normal lint and typecheck checks. Expose each script as a thin Zap task that invokes it with `tsx` (for example, `zap t somemigration` runs `packages/scripts/somemigration.ts`); keep CI callers aligned when moving scripts.
+
+
+
+## Documentation
+
+Keep project-specific documentation in `docs/` and update it with behavior changes. Follow the project's own instructions for any Forum sync mapping; read shared standards and extension setup from their Forum stores.
+
+
 ## Documentation
 
 Keep Shad-specific documentation under `docs/`. Public component documentation is part of this project; shared standards and extensions stay in Forum.

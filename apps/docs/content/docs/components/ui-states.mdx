@@ -12,3 +12,19 @@ pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/ui-states.json
 ```
 
 <UiStatesDemo />
+
+## Full-screen loading
+
+Use `FullScreenLoading` for application startup and authentication readiness.
+It fills the viewport with the theme background and centers the standard
+18px dot-matrix loader, without visible loading text. The optional `label`
+is accessible to screen readers. Reduced-motion preferences are respected.
+
+```tsx
+import { FullScreenLoading } from "@/components/ui-states/full-screen-loading";
+
+if (!isLoaded) return <FullScreenLoading label="Loading session" />;
+```
+
+Keep this fallback eagerly imported so it can render while lazy application
+code loads. Use an inline loader for content inside an already loaded screen.

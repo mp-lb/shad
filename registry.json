@@ -178,6 +178,11 @@
       "categories": ["feedback", "dashboard", "layout"],
       "files": [
         {
+          "path": "registry/ui-states/full-screen-loading.tsx",
+          "type": "registry:component",
+          "target": "@components/ui-states/full-screen-loading.tsx"
+        },
+        {
           "path": "registry/ui-states/ui-states.tsx",
           "type": "registry:component",
           "target": "@components/ui-states/ui-states.tsx"

@@ -12,6 +12,11 @@ export default function UiStatesPage() {
           description="Reusable loading, empty, error, retry, and success states with a MAP Lab loader."
           install="pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/ui-states.json"
         />
+        <p className="text-sm text-muted-foreground">
+          Use <code>FullScreenLoading</code> while the application or session is
+          starting. It centers the standard dot-matrix spinner on the app
+          background; its label is announced to screen readers only.
+        </p>
         <UiStatesDemo />
       </div>
     </DocsPage>

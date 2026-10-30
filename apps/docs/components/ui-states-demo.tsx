@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+import { FullScreenLoading } from "../../../registry/ui-states/full-screen-loading";
+
 import { Button } from "@/components/ui/button";
 import {
   EmptyState,
@@ -18,6 +20,9 @@ export function UiStatesDemo() {
 
   return (
     <div className="grid gap-6">
+      <div className="rounded-lg border">
+        <FullScreenLoading className="min-h-64" label="Loading application" />
+      </div>
       <div className="flex flex-wrap items-center gap-4 rounded-lg border p-4">
         <MapLabLoader size="sm" />
         <MapLabLoader />

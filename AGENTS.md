@@ -1,6 +1,47 @@
+## Agent context
+
+Shared agent instructions live in `context/`. `context/index.md` explicitly imports blocks with `@filename.md`, in order. Files that are not imported are not included.
+
+Edit source blocks, not generated root files. To add a block, create it and add its import to the index. To remove one, remove the import and unused file. Keep rules short and specific to the actual project.
+
+Run `zap task context-build` after changes. Review and commit the source changes together with `AGENTS.base.md`, `AGENTS.md`, and `CLAUDE.md`. Without personal additions, all three outputs should match. Missing shared imports are errors, not optional omissions.
+
+Keep private and machine-specific instructions out of committed context. This project compiles shared blocks only; keep personal files out of its index. `zap task context-copy` restores the root agent files from the shared base.
+
+Extensions are documented at `extensions/<extension>/README.md` in the FSS Stack source (read with `fm read extensions/<extension>/README.md --store mp-lb/fssstack`). Each extension owns its context and other payloads. When installing one, copy its context payload, adapt it to the project, add the import once, and rebuild. Merge updates into existing customized blocks instead of overwriting them.
+
 # Shad
 
-Component registry / shadcn docs site.
+Component registry and documentation site. Registry sources live in `registry/`; `registry.json` declares installable artifacts.
+
+## Development
+
+Use Zapper for processes and tasks: `zap status`, `zap up`, `zap logs <service> --no-follow`, and `zap task <task>`. Inspect the existing stack before starting another copy. Services and tasks that need environment variables must receive Zapper's resolved environment.
+
+Keep service names, dynamic ports and task commands in `zap.yaml`; do not hardcode development ports. Non-secret defaults live in `.env.local`; secrets belong in ignored `.env` or the configured secret source. Never put secret values in context.
+
+The canonical tool versions are `.node-version` and `package.json#packageManager`; preserve them when changing local tooling or CI.
+
+## Validation
+
+For context changes run `zap task context-build` and review matching generated outputs. For component changes, follow the existing component documentation policy and run the configured registry/build checks.
+
+## Scripts
+
+Write project scripts in TypeScript in the package that owns the behaviour, or `packages/scripts` when there is no natural owner, and include them in normal lint and typecheck checks. Expose scripts through thin Zap tasks using `tsx`; component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for the docs aliases.
+
+## Documentation
+
+Keep Shad-specific documentation under `docs/`. Public component documentation is part of this project; shared standards and extensions stay in Forum.
+
+This project has no dedicated Forum store or `.forum/` sync configuration. Read shared standards with `fm read <file>.md --store mp-lb/dev` (list them with `fm ls --store mp-lb/dev`). Read shared extensions with `fm read extensions/<extension>/README.md --store mp-lb/fssstack` (list them with `fm ls extensions --store mp-lb/fssstack`).
+
+
+### Component documentation
+
+The public site uses Next.js routes under `apps/docs/app/docs/components/` for the rendered component pages. Each registry component must have a page with its install command and a working, representative rendered example; use a client demo when the component is interactive. The source lives under `registry/` and `registry.json` defines the installable files and dependencies. The matching MDX entry under `apps/docs/content/docs/components/` supplies the docs navigation metadata; add it to `meta.json`. The docs sidebar is one flat list derived from that metadata, and `/docs` opens its first component. Avoid separate hard-coded component navigation lists.
+
+When adding or changing a component, update the registry, its route, its demo, and its MDX navigation entry together. Run `pnpm registry:build` and `pnpm build` to verify the generated registry and docs. Review every component page for a usable example when reorganizing the docs.
 
 ## Publishing
 
@@ -21,98 +62,17 @@ curl -I -L https://shad.mp-lb.dev/r/message-input.json
 There is also a CodeQL GitHub Action on pushes, but it is analysis only; it is not the publishing mechanism.
 
 
-# How we work
+## MapLab workflow
 
-## AGENTS.md and CLAUDE.md
+Commit completed changes promptly, then use follow-up commits for fixes. Commit only your own changes; unrelated edits are normal and do not block work. Follow explicit project/user push preferences, and establish the preference once if unknown. Do not assume a push is harmless: it may trigger delivery.
 
-A few conventions about these instruction files themselves:
+Use Berth for project work and tasks; use `berth project list` and built-in help to locate the relevant project. Keep locally developed CLI tools built and linked after changing them. Run environment-dependent work through the project's Zap tasks.
 
-- **The source is `context/` building blocks; the agent files are compiled from them.** `context/index.md` composes project-specific `@<block>.md` imports and standalone Forum links for shared blocks. Edit the project blocks and index, not the generated files.
-- **`CLAUDE.md` and `AGENTS.md` are generated and committed outputs.** The context task first resolves local imports with [`@mp-lb/mdcompile`](https://www.npmjs.com/package/@mp-lb/mdcompile), then pipes that Markdown through `fm compile --stdin` to expand Forum links. Regenerate both files with the project’s context task and commit them with their source changes.
-- **The compiled agent file is small on purpose.** It carries the always-true essentials. Read relevant shared standards directly from `mp-lb/dev` on demand with `fm read <file>.md --store mp-lb/dev`.
+## MapLab standards
 
-## Tools you can expect to be authenticated
+Read relevant shared standards on demand with `fm read <file>.md --store mp-lb/dev`; list them with `fm ls --store mp-lb/dev`. Read capability setup at `fm read extensions/<extension>/README.md --store mp-lb/fssstack` and MapLab additions from `mp-lb/augmentations`.
 
-A handful of CLI tools are installed and already authenticated on this machine — use them freely, no setup required.
-
-- **GitHub CLI (`gh`)** — we don't use PRs, but use it to check Actions runs, read issues, inspect remote state.
-- **Google Cloud CLI (`gcloud`)**
-- **AWS CLI (`aws`)**
-- **Zapper** — our process manager and task runner.
-- **Forum** — our document system.
-
-## Git
-
-Some projects also sync project documentation with Forum; check the project's documentation instructions before editing docs.
-
-**Local-first.** Work happens locally. Branches isolate a piece of work before it merges to `main`. We **rarely push to GitHub — only to deploy**, from `main`, as a separate step. We never use PRs.
-
-**Commit incrementally.** Commit changes straight away. For follow-up fixes, make a new commit, and commit only your own changes — not unrelated ones (other agents may be in the same repo).
-
-**Messages.** No conventions — a short lowercase string. For a follow-up fix, prefix with `fix: `.
-
-## Deployments
-
-Many projects deploy via CI when you push `main`. To confirm a deploy landed, lean on `gh`: glance at how long recent runs took, then schedule a recheck on a fitting cadence rather than polling tightly. Specifics vary by project.
-
-## Forum
-
-Projects with a dedicated Forum store run `fm sync` before and after editing their mapped docs. Projects without one read shared material directly from Forum and do not need a sync configuration. Follow the project's documentation block for its actual store and layout.
-
-## Task running
-
-Run migrations, tests, the dev server, checks and static analysis, and everything else as **zap tasks** — otherwise environment variables aren't picked up. Add an **npm script only** when CI also needs to run something (prefix those to mark them as CI scripts); the one other exception is super-basic things like the dev server or build, which often connect to Vercel. Two or three standard scripts is fine; four is suspicious — at least one is probably dangling.
-
-## Builds
-
-We run builds locally mainly to confirm they pass. For libraries and especially **CLIs**, we build to produce the artifact; for web servers and apps, mostly just to test that the build runs.
-
-## CLIs
-
-We always keep CLIs built, and make sure the local PATH command is linked to the locally built copy. Check this after making changes to a CLI.
-
-## Working alongside other agents
-
-You're rarely the only agent at work — multiple agents run in the same repo, often the same branch, at once.
-
-- **A dirty tree is normal — it doesn't block you.** Do your own work; don't touch the files someone else is changing, and when you commit, stage only your own files. Only **stop** if your change genuinely collides with a file in flight. Unfamiliar edits are almost certainly another agent's — work around them.
-- Coordinate work through the project’s current task tracker and explicit handoff instructions.
-
-## Frontend patterns
-
-Beyond the stack itself (shadcn/ui, Tailwind, tRPC — see the tech-stack and ui blocks), the patterns we lean on:
-
-- The **typeahead** pattern — a command box plus a popover (shadcn popovers, menus, command components).
-- **Components we standardize early:** standard modals (one standard-modal component owning scrollbars/footers/action buttons), modal layout (modals as a global layer), and layout components (layout primitives own all whitespace via flex gap; content components are "dumb" and carry no padding of their own).
-
-We have lots of frontend **standards** — always read the ones relevant to what you're working on.
-
-## Backend
-
-The backend is just **tRPC**, few layers. tRPC and Zod handle serialization, so database queries can go directly in procedure handlers — fine for most projects; pull a query into a shared function only when it's used repeatedly.
-
-**Standards to watch:** `errors.md` (throwing/handling exceptions across front and back), `event-schema.md` (anything log-shaped — we treat logs as events).
-
-**Zod-centric schemas.** The same schema serves the database, the API, and frontend forms. Keep them in a central registry (usually the core package); group by domain and avoid duplication — if the same keys appear two or three times, make it its own schema others extend.
-
-
-## Working locally
-
-You are expected to check logs, check which services are running, update env vars on your own. All code should have hot reloading so you would not need to restart unless the changes are not hot-reloadable. The `.env.local` is for non-secrets. The regular `.env` is for secrets so leave that to the dev, just ask them to update secrets.
-
-
-## Tech stack
-
-This tech is core and should be used **religiously**:
-
-- Zod
-- shadcn/ui and utility functions
-- shadcn/ui CLI
-- Tailwind CSS
-- tRPC
-- tRPC's tanstack style hooks
-- react-hook-form with zod resolver
-
+Keep code focused and well organized, reuse domain schemas and shared components, and prefer sentence case for product copy and documentation. Follow project-specific architecture and validation policies. Document the project's actual Forum store/sync mapping in its documentation block; a project without a dedicated store does not need sync configuration.
 
 ## Code style
 
@@ -137,56 +97,10 @@ Take extra care when organizing tests.
 
 In general, follow the boy scout principle. But if you come across tech debt that's too big to address, add a .md doc to docs/tech-debt and raise it with the user.
 
+## Frontend
 
-## Process management
+Use the UI framework and component library configured in the frontend package. For shadcn/ui frontends, add components from that package's directory with the shadcn CLI and reuse the existing utilities, preset and theme. Do not assume the frontend is named `apps/frontend`.
 
-[Zapper](https://docs.zapper.mp-lb.dev) runs this project's processes (native and containerized) and one-off tasks from a single `zap.yaml`. Ports and env vars come from Zapper — never hardcode a dev port or fall back to a framework default. The project is often already running in the background.
+Keep components focused, reuse form schemas and existing loading/error patterns, and validate the affected frontend through its configured Zap tasks.
 
-A few basics:
-
-```
-zap status              # what's running
-zap up                  # start everything
-zap logs <service> --no-follow
-zap restart <service>
-zap task <task>         # run a one-off task
-```
-
-Beyond these, the CLI has full built-in help — run `zap --help`, or `zap <command> --help` for a specific command. If that's still not enough, the complete documentation is online at <https://docs.zapper.mp-lb.dev>.
-
-
-## UI
-
-The frontend uses [shadcn/ui](https://ui.shadcn.com/) for UI components. Add new components with `npx shadcn@latest add <component>` from the `apps/frontend` directory.
-
-Always use shadcn/ui where possible, including utilities like `cn` for conditional classnames.
-
-
-## Documentation
-
-This project publishes docs, so they're **generated from the source of truth**, not hand-maintained in parallel — they can't drift:
-
-- A library's API reference comes from its **types**; a CLI's command reference comes from its **commander tree**. You don't hand-write these.
-- **After changing public API or CLI commands/flags, run `docs:gen`** to regenerate the reference (and the `llms-full.txt` agent bundle), then commit the result.
-- **`docs:check` runs in CI and fails if the committed docs are stale** — regenerating is not optional.
-- Hand-written narrative (README, guides) lives beside the generated reference: update it when behaviour changes, but never restate signatures or flags — link to the reference instead.
-
-Read `libs.md` from `mp-lb/dev` for the full model (`fm read libs.md --store mp-lb/dev`). If the package ships a CLI, read `clis.md` from the same store.
-
-
-## Documentation
-
-Keep Shad-specific documentation under `docs/`. Public component documentation is part of this project; shared standards and extensions stay in Forum.
-
-This project has no dedicated Forum store or `.forum/` sync configuration. Read shared standards with `fm read <file>.md --store mp-lb/dev` (list them with `fm ls --store mp-lb/dev`). Read shared extensions with `fm read extensions/<file>.md --store mp-lb/fssstack` (list them with `fm ls extensions --store mp-lb/fssstack`).
-
-
-### Component documentation
-
-The public site uses Next.js routes under `apps/docs/app/docs/components/` for the rendered component pages. Each registry component must have a page with its install command and a working, representative rendered example; use a client demo when the component is interactive. The source lives under `registry/` and `registry.json` defines the installable files and dependencies. The matching MDX entry under `apps/docs/content/docs/components/` supplies the docs navigation metadata; add it to `meta.json`. The docs sidebar is one flat list derived from that metadata, and `/docs` opens its first component. Avoid separate hard-coded component navigation lists.
-
-When adding or changing a component, update the registry, its route, its demo, and its MDX navigation entry together. Run `pnpm registry:build` and `pnpm build` to verify the generated registry and docs. Review every component page for a usable example when reorganizing the docs.
-
-## Scripts
-
-Write project scripts in TypeScript in the package that owns the behaviour, or `packages/scripts` when there is no natural owner, and include them in normal lint and typecheck checks. Expose scripts through thin Zap tasks using `tsx`; component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for the docs aliases.
+This repository maintains a component registry. Preserve the actual registry files and consumer docs/playground structure; do not assume `apps/frontend` exists.

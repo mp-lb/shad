@@ -10,7 +10,7 @@ apps/docs/.vitepress/dist
 apps/docs/public/r
 .DS_Store
 
-# Agent files are compiled from agents-md/index.md via `zap t compile-agents`; not committed.
+# Agent files are compiled from context/index.md and committed.
 
 # Zapper instance state
 .zap/

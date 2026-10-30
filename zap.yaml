@@ -11,8 +11,13 @@ tasks:
       - pnpm ci:typecheck-tests
   context-build:
     cmds:
-      - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o AGENTS.md
-      - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o CLAUDE.md
+      - npx -y @mp-lb/mdcompile context/index.md --silent -o AGENTS.base.md
+      - cp AGENTS.base.md AGENTS.md
+      - cp AGENTS.base.md CLAUDE.md
+  context-copy:
+    cmds:
+      - cp AGENTS.base.md AGENTS.md
+      - cp AGENTS.base.md CLAUDE.md
   worktree-setup:
     cmds:
       - pnpm install --frozen-lockfile

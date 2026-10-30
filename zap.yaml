@@ -5,6 +5,13 @@ native:
     cmd: pnpm dev
     env: "*"
 tasks:
+  scripts-check:
+    cmds:
+      - pnpm exec eslint tests/*.test.ts
+      - pnpm exec tsc --noEmit -p tsconfig.tests.json
+  test-ts:
+    cmds:
+      - pnpm exec tsx --tsconfig tsconfig.tests.json --test tests/*.test.ts
   context-build:
     cmds:
       - pnpm dlx @mp-lb/mdcompile context/index.md --optional --silent | fm compile --stdin -o AGENTS.md

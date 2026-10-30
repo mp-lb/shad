@@ -1,0 +1,11 @@
+{
+  "extends": "./apps/docs/tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "types": ["node", "react", "react-dom"],
+    "incremental": false,
+    "plugins": []
+  },
+  "include": ["tests/**/*.ts"],
+  "exclude": ["node_modules"]
+}

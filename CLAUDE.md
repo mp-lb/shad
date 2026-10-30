@@ -189,4 +189,4 @@ When adding or changing a component, update the registry, its route, its demo, a
 
 ## Scripts
 
-Keep project automation in its owning package and expose environment-dependent commands through Zap tasks. Use TypeScript for new project scripts and include them in the owning package checks.
+Write project scripts in TypeScript in the package that owns the behaviour, or `packages/scripts` when there is no natural owner, and include them in normal lint and typecheck checks. Expose scripts through thin Zap tasks using `tsx`; component tests belong in `tests/*.test.ts` and run with `zap t test`, using `tsx` and `tsconfig.tests.json` for the docs aliases.

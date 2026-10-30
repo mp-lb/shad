@@ -6,14 +6,14 @@ import { FullScreenCodeEntry } from "../../../registry/full-screen-code-entry/fu
 import { FullScreenState } from "@/components/full-screen-state";
 
 export function FullScreenCodeEntryDemo() {
-  const [code, setCode] = useState("ABCD1234");
+  const [code, setCode] = useState("ABCDE12345");
   const [approved, setApproved] = useState(false);
   return (
     <div className="overflow-hidden rounded-lg border">
       {approved ? (
         <FullScreenState className="min-h-80" title="CLI approved" description="You can return to your terminal." actions={<Button onClick={() => setApproved(false)}>Try again</Button>} />
       ) : (
-        <FullScreenCodeEntry className="min-h-80" code={code} onCodeChange={setCode} onConfirm={() => setApproved(true)} />
+        <FullScreenCodeEntry className="min-h-80" code={code} codeLength={10} groupSize={5} onCodeChange={setCode} onConfirm={() => setApproved(true)} />
       )}
     </div>
   );

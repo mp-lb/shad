@@ -13,7 +13,7 @@ pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/full-screen-code-entry.json
 
 <FullScreenCodeEntryDemo />
 
-Controlled props: `code`, `onCodeChange`, and `onConfirm`. The default code length is eight alphanumeric characters; override `codeLength` for your provider. Set `pending` while verifying and `error` when verification fails. Title, description, icon, labels and layout class are customizable.
+Controlled props: `code`, `onCodeChange`, and `onConfirm`. The default code length is eight alphanumeric characters; override `codeLength` for your provider. Set `groupSize` (default four) to control the visual groups; a ten-character code uses `codeLength={10}` and `groupSize={5}` for two groups of five. Set `pending` while verifying and `error` when verification fails. Title, description, icon, labels and layout class are customizable.
 
 Prefill from the URL's public `user_code` parameter, normalizing to uppercase and removing spaces and hyphens. Never put a private device code or token in the URL. Prefilling and completing the input never authorize automatically: confirmation requires submitting the form.
 

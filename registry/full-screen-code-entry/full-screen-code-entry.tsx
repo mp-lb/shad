@@ -11,6 +11,7 @@ type FullScreenCodeEntryProps = Pick<ComponentProps<typeof FullScreenState>, "ic
   onCodeChange: (code: string) => void;
   onConfirm: (code: string) => void;
   codeLength?: number;
+  groupSize?: number;
   codeLabel?: string;
   confirmLabel?: string;
   pendingLabel?: string;
@@ -23,6 +24,7 @@ export function FullScreenCodeEntry({
   onCodeChange,
   onConfirm,
   codeLength = 8,
+  groupSize = 4,
   codeLabel = "Confirmation code",
   confirmLabel = "Approve",
   pendingLabel = "Approving…",
@@ -61,10 +63,10 @@ export function FullScreenCodeEntry({
           aria-describedby={error ? errorId : undefined}
           containerClassName="flex-wrap justify-center"
         >
-          {Array.from({ length: Math.ceil(codeLength / 4) }, (_, group) => (
+          {Array.from({ length: Math.ceil(codeLength / groupSize) }, (_, group) => (
             <InputOTPGroup key={group}>
-              {Array.from({ length: Math.min(4, codeLength - group * 4) }, (_, slot) => (
-                <InputOTPSlot key={slot} index={group * 4 + slot} />
+              {Array.from({ length: Math.min(groupSize, codeLength - group * groupSize) }, (_, slot) => (
+                <InputOTPSlot key={slot} index={group * groupSize + slot} />
               ))}
             </InputOTPGroup>
           ))}

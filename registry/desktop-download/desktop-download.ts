@@ -106,7 +106,10 @@ export const enhanceDesktopDownload = (
 
   if (preferred) {
     primary.href = preferred.link.href;
-    primary.setAttribute("aria-label", `Download for ${preferred.link.textContent}`);
+    primary.setAttribute(
+      "aria-label",
+      `Download for ${preferred.link.textContent}`,
+    );
     label.textContent = "Download";
     hint.textContent = preferred.link.textContent;
   }

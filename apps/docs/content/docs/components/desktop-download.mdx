@@ -1,0 +1,18 @@
+---
+title: "Desktop Download"
+description: "A split desktop download button with operating system recommendations."
+---
+
+import { DesktopDownloadDemo } from "../../../components/desktop-download-demo";
+
+# Desktop Download
+
+```bash
+pnpm dlx shadcn@latest add https://shad.mp-lb.dev/r/desktop-download.json
+```
+
+<DesktopDownloadDemo />
+
+Pass only published installers. Each option includes a platform, a package label, an HTTPS URL, and an optional Linux package format. The main action recommends a matching option when the browser identifies the platform. The disclosure lists every available package and works without JavaScript. If there are no available packages, the component displays an unavailable state.
+
+Static sites can generate markup with `renderDesktopDownload`, include `desktop-download.css`, and call `enhanceDesktopDownload` in the browser.

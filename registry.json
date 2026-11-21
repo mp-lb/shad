@@ -4,6 +4,26 @@
   "homepage": "https://shad.mp-lb.dev",
   "items": [
     {
+      "name": "desktop-download",
+      "type": "registry:component",
+      "title": "Desktop Download",
+      "description": "A split download button with OS recommendations and a no-script list of available installers.",
+      "files": [
+        {
+          "path": "registry/desktop-download/DesktopDownloadButton.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/desktop-download/desktop-download.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/desktop-download/desktop-download.css",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "chat-container",
       "type": "registry:component",
       "title": "Chat Container",
